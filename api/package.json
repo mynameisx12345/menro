@@ -1,0 +1,27 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build:ui": "cd ../ui && npm run build:ngrok",
+    "start:ngrok": "cd ../ui && node scripts/bump-version.js && cd ../api && npm run build:ui && node server.js",
+    "start:cloudflare": "pkill -f 'node.*server.js' 2>/dev/null; cd ../ui && node scripts/bump-version.js && npm run build:ngrok && cd ../api && cloudflared tunnel run teng-local &>/tmp/cf.log & node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.8.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^9.0.1",
+    "web-push": "^3.6.7",
+    "ws": "^8.20.0"
+  }
+}

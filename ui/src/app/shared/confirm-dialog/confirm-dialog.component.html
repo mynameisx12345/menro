@@ -1,0 +1,10 @@
+<div class="overlay" *ngIf="visible" (click)="answer(false)">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <h4>{{ options.title }}</h4>
+    <p>{{ options.message }}</p>
+    <div class="actions">
+      <button class="btn-cancel" (click)="answer(false)">Cancel</button>
+      <button class="btn-confirm" [class.danger]="options.dangerMode" (click)="answer(true)">{{ options.confirmText }}</button>
+    </div>
+  </div>
+</div>

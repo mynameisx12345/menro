@@ -1,0 +1,38 @@
+<div class="settings-panel">
+  <h3>⚙️ System Settings</h3>
+
+  <div class="setting-group">
+    <div class="setting-label-row">
+      <label>No-Signal Threshold (minutes)</label>
+      <span class="tooltip-wrap">
+        <span class="help-icon">?</span>
+        <span class="tooltip-text">Flag a collector as "No Signal" if their truck has not sent a location update for this many minutes during an active schedule.</span>
+      </span>
+    </div>
+    <div class="setting-row">
+      <input type="number" [(ngModel)]="noSignalThresholdMinutes" min="1" max="120" />
+      <span class="unit">min</span>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="setting-label-row">
+      <label>Nearby Truck Notification Cooldown (minutes)</label>
+      <span class="tooltip-wrap">
+        <span class="help-icon">?</span>
+        <span class="tooltip-text">How long to wait before sending another "Truck Nearby" push notification to the same resident. Prevents spam when a truck stays within 1km for a long time.</span>
+      </span>
+    </div>
+    <div class="setting-row">
+      <input type="number" [(ngModel)]="nearbyNotifCooldownMinutes" min="1" max="120" />
+      <span class="unit">min</span>
+    </div>
+  </div>
+
+  <div class="setting-actions">
+    <button class="btn-save" (click)="save()" [disabled]="saving">
+      {{ saving ? 'Saving…' : 'Save Settings' }}
+    </button>
+    <span class="saved-msg" *ngIf="saved">✅ Saved!</span>
+  </div>
+</div>

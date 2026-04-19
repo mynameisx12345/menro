@@ -1,0 +1,59 @@
+<div class="panel">
+  <div class="panel-header">
+    <h3>Waste Types</h3>
+    <div class="header-actions">
+      <input class="search-input" [value]="search" (input)="search = $any($event.target).value" placeholder="🔍 Search..." />
+      <button class="btn-primary" (click)="openForm()">+ New Waste Type</button>
+    </div>
+  </div>
+
+  <div *ngIf="showForm" class="form-card">
+    <h4>{{ editing ? 'Edit Waste Type' : 'New Waste Type' }}</h4>
+    <form [formGroup]="form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Name</label>
+          <input formControlName="name" placeholder="e.g. Biodegradable" />
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-row">
+            <input type="color" formControlName="color" />
+            <span class="color-preview" [style.background]="form.value.color">{{ form.value.name || 'Preview' }}</span>
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label>Description</label>
+          <input formControlName="description" placeholder="Brief description" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-primary" [disabled]="form.invalid" (click)="save()">{{ editing ? 'Update' : 'Save' }}</button>
+        <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <table class="data-table">
+    <thead><tr>
+      <th (click)="setSort('name')" class="sortable">Name <span class="sort-icon">{{ sortCol==='name' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <th (click)="setSort('description')" class="sortable">Description <span class="sort-icon">{{ sortCol==='description' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <th (click)="setSort('color')" class="sortable">Color <span class="sort-icon">{{ sortCol==='color' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <th>Actions</th>
+    </tr></thead>
+    <tbody>
+      <tr *ngIf="loading">
+        <td colspan="4" class="loading-cell"><span class="table-spinner"></span> Loading...</td>
+      </tr>
+      <tr *ngFor="let w of filtered" [hidden]="loading">
+        <td><span class="type-badge" [style.background]="w.color + '22'" [style.color]="w.color">{{ w.name }}</span></td>
+        <td>{{ w.description || '—' }}</td>
+        <td><span class="color-dot" [style.background]="w.color"></span> {{ w.color }}</td>
+        <td>
+          <button class="btn-sm" (click)="editItem(w)">Edit</button>
+          <button class="btn-sm danger" (click)="delete(w.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

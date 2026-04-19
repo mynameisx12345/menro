@@ -1,0 +1,80 @@
+<div class="panel">
+  <div class="panel-header">
+    <h3>Fleet Management</h3>
+    <div class="header-actions">
+      <input class="search-input" [value]="search" (input)="search = $any($event.target).value" placeholder="🔍 Search..." />
+      <button class="btn-primary" (click)="openForm()">+ New Truck</button>
+    </div>
+  </div>
+
+  <div *ngIf="showForm" class="form-card">
+    <h4>{{ editingTruck ? 'Edit Truck' : 'Add Truck' }}</h4>
+    <form [formGroup]="form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Plate Number</label>
+          <input formControlName="plateNumber" placeholder="e.g. ABC-1234" />
+        </div>
+        <div class="form-group">
+          <label>Collector Name</label>
+          <input formControlName="collectorName" placeholder="e.g. Juan Dela Cruz" />
+        </div>
+        <div class="form-group">
+          <label>Waste Type</label>
+          <select formControlName="wasteType">
+            <option value="" disabled>Select type</option>
+            <option *ngFor="let w of wasteTypes$ | async" [value]="w.name">{{ w.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Route</label>
+          <input formControlName="route" placeholder="e.g. Route A" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select formControlName="status">
+            <option value="" disabled>Select status</option>
+            <option value="active">Active</option>
+            <option value="idle">Idle</option>
+            <option value="offline">Offline</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-primary" [disabled]="form.invalid" (click)="save()">{{ editingTruck ? 'Update' : 'Save' }}</button>
+        <button type="button" class="btn-secondary" (click)="cancelForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th (click)="setSort('plateNumber')" class="sortable">Plate <span class="sort-icon">{{ sortCol==='plateNumber' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('collectorName')" class="sortable">Collector <span class="sort-icon">{{ sortCol==='collectorName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('wasteType')" class="sortable">Waste Type <span class="sort-icon">{{ sortCol==='wasteType' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('route')" class="sortable">Route <span class="sort-icon">{{ sortCol==='route' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('status')" class="sortable">Status <span class="sort-icon">{{ sortCol==='status' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('lastUpdated')" class="sortable">Last Updated <span class="sort-icon">{{ sortCol==='lastUpdated' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="loading">
+        <td colspan="7" class="loading-cell"><span class="table-spinner"></span> Loading...</td>
+      </tr>
+      <tr *ngFor="let t of filtered" [hidden]="loading">
+        <td><strong>{{ t.plateNumber }}</strong></td>
+        <td>{{ t.collectorName }}</td>
+        <td><span class="waste-badge" [class]="t.wasteType?.toLowerCase()">{{ t.wasteType }}</span></td>
+        <td>{{ t.route }}</td>
+        <td><span class="status-dot" [class]="t.status">{{ t.status }}</span></td>
+        <td>{{ t.lastUpdated | date:'short' }}</td>
+        <td>
+          <button class="btn-sm" (click)="editTruck(t)">Edit</button>
+          <button class="btn-sm danger" (click)="delete(t.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

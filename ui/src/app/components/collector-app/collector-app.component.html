@@ -1,0 +1,229 @@
+<div class="collector-app">
+  <nav class="navbar">
+    <div class="nav-brand">♻️ EcoTrack <span class="badge collector">Collector</span>
+    </div>
+    <span class="user-name">{{ user?.name }}</span>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </nav>
+
+  <div class="tabs">
+    <button *ngIf="features.collectorMap" [class.active]="activeTab==='map'" (click)="setTab('map')">🗺️ Map</button>
+    <button *ngIf="features.collectorLogIssue" [class.active]="activeTab==='log'" (click)="setTab('log')">📝 Log Issue</button>
+    <button *ngIf="features.collectorCollection" [class.active]="activeTab==='collection'" (click)="setTab('collection')">✅ Collection</button>
+  </div>
+
+  <!-- MAP -->
+  <div *ngIf="features.collectorMap" [hidden]="activeTab!=='map'" class="tab-content map-tab">
+    <div id="collector-map" class="map-container">
+      <button *ngIf="installPrompt || isIOS" (click)="installApp()" class="install-btn-map">⬇️ Install me</button>
+      <button *ngIf="selectedSchedule" class="hint-btn" (click)="showWasteHint = !showWasteHint" title="Waste type info">💡</button>
+      <div class="hint-popup" *ngIf="showWasteHint && currentWasteType">
+        <div class="hint-title">{{ currentWasteType.name }}</div>
+        <div class="hint-desc">{{ currentWasteType.description }}</div>
+      </div>
+    </div>
+    <div *ngIf="routeLoading" class="route-loading-overlay">
+      <div class="spinner"></div>
+    </div>
+    <div class="location-bar" *ngIf="myTruck">
+      <span class="route-tag" *ngIf="selectedSchedule">{{ selectedSchedule.routeId }} · {{ selectedSchedule.wasteType }} · {{ selectedSchedule.date }}</span>
+      <span class="route-tag" *ngIf="!selectedSchedule">No route selected</span>
+      <button class="btn-update" (click)="showRouteModal = true; loadMySchedules()">🔄 Change Route</button>
+    </div>
+
+    <!-- Turn-by-turn panel -->
+    <div class="nav-panel" *ngIf="navSteps.length">
+      <div class="nav-header" (click)="navOpen = !navOpen">
+        <span>{{ navSteps[0].instruction }}</span>
+        <span class="nav-dist">{{ navSteps[0].distance }}</span>
+        <span class="nav-toggle">{{ navOpen ? '▲' : '▼' }}</span>
+      </div>
+      <div class="nav-steps" *ngIf="navOpen">
+        <div class="nav-step" *ngFor="let step of navSteps; let i = index" [class.first]="i === 0">
+          <span class="step-instruction">{{ step.instruction }}</span>
+          <span class="step-dist">{{ step.distance }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG SEGREGATION ISSUE -->
+  <div *ngIf="features.collectorLogIssue && activeTab==='log'" class="tab-content">
+    <div class="log-panel">
+      <h3>⚠️ Log Segregation Issue</h3>
+      <p class="info-note">Resident will be notified immediately upon submission.</p>
+      <form #issueForm="ngForm">
+        <div class="form-group">
+          <label>Address / Location</label>
+          <input [(ngModel)]="issue.address" name="address" required placeholder="e.g. 456 Oak Ave, Barangay 2" />
+        </div>
+        <div class="form-group">
+          <label>Waste Type at Location</label>
+          <select [(ngModel)]="issue.wasteType" name="wasteType" required>
+            <option value="" disabled>Select type</option>
+            <option *ngFor="let wt of wasteTypes" [value]="wt.name">{{ wt.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Issue Description</label>
+          <textarea [(ngModel)]="issue.issue" name="issue" required rows="3" placeholder="Describe the segregation violation..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Photos <span class="required-note">(required — select or take multiple)</span></label>
+          <div class="photo-actions">
+            <label class="photo-upload-btn">
+              🖼️ Choose from Gallery
+              <input type="file" accept="image/*" multiple (change)="onPhotosSelected($event)" hidden />
+            </label>
+            <button type="button" class="photo-upload-btn" (click)="openCamera()">📷 Take Photo</button>
+          </div>
+          <div class="photo-previews" *ngIf="photos.length">
+            <div *ngFor="let p of photos; let i=index" class="photo-thumb">
+              <img [src]="p" (click)="selectedPhoto = p" />
+              <button type="button" (click)="removePhoto(i)">×</button>
+            </div>
+          </div>
+          <p class="photo-hint" *ngIf="!photos.length">No photos added yet.</p>
+        </div>
+        <button type="button" class="btn-submit" (click)="submitIssue()" [disabled]="issueForm.invalid || !photos.length">
+          Submit Issue ({{ photos.length ? photos.length + ' photo(s)' : 'Photo Required' }})
+        </button>
+        <div class="success-msg" *ngIf="issueSubmitted">✅ Issue logged! Resident notified.</div>
+      </form>
+
+      <div class="my-issues" *ngIf="myIssues.length">
+        <h4>My Logged Issues</h4>
+        <div class="issue-item" *ngFor="let i of myIssues">
+          <div class="issue-meta">
+            <span class="status-badge" [class]="i.status">{{ i.status }}</span>
+            <span class="issue-date">{{ i.timestamp | date:'short' }}</span>
+          </div>
+          <div class="issue-address">📍 {{ i.address }}</div>
+          <div class="issue-desc">{{ i.wasteType }} — {{ i.issue }}</div>
+          <div class="photo-previews" *ngIf="i.photoUrls?.length">
+            <div *ngFor="let p of i.photoUrls" class="photo-thumb"><img [src]="p" (click)="selectedPhoto = p" /></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLECTION -->
+  <div *ngIf="features.collectorCollection && activeTab==='collection'" class="tab-content">
+    <div class="log-panel">
+      <h3>✅ Complete Collection</h3>
+      <div class="form-group">
+        <label>Select Route / Schedule</label>
+        <select [(ngModel)]="scheduleToComplete" name="scheduleToComplete">
+          <option [ngValue]="null" disabled>-- Select a schedule --</option>
+          <option *ngFor="let s of activeSchedules" [ngValue]="s">{{ s.routeId }} · {{ s.wasteType }} · {{ s.date }} · {{ s.timeSlot }}</option>
+        </select>
+      </div>
+      <div class="schedule-detail" *ngIf="scheduleToComplete">
+        <span class="status-badge" [class]="scheduleToComplete.status">{{ scheduleToComplete.status }}</span>
+        <span>📍 {{ scheduleToComplete.areas?.join(', ') }}</span>
+      </div>
+      <button class="btn-submit" style="margin-top:2rem" [disabled]="!scheduleToComplete" (click)="showCompleteModal = true">✅ Complete Collection</button>
+      <div class="success-msg" *ngIf="collectionCompleted">✅ Collection marked as completed!</div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Chat Icon -->
+<div class="chat-fab"
+  [style.left]="chatIconPos ? chatIconPos.x + 'px' : null"
+  [style.top]="chatIconPos ? chatIconPos.y + 'px' : null"
+  [style.bottom]="chatIconPos ? null : '8rem'"
+  (mousedown)="onDragStart($event)"
+  (touchstart)="onDragStart($event)"
+  (click)="openChatInbox()">
+  💬
+  <span class="chat-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+</div>
+
+<!-- Fullscreen Chat Inbox -->
+<div class="chat-fullscreen" *ngIf="showChat">
+  <div class="chat-fs-header">
+    <span>💬 Resident Messages</span>
+    <button (click)="closeChatInbox()">✕ Close</button>
+  </div>
+  <div class="chat-fs-messages" id="collector-chat-messages">
+    <div *ngFor="let m of chatMessages" class="chat-msg" [class.mine]="m.fromId === user?.id">
+      <span class="chat-name">{{ m.fromId === user?.id ? 'You' : m.fromName }}</span>
+      <span class="chat-bubble">{{ m.message }}</span>
+    </div>
+    <div *ngIf="!chatMessages.length" class="chat-empty">No messages yet.</div>
+  </div>
+  <div class="chat-fs-input" *ngIf="chatMessages.length">
+    <input [(ngModel)]="chatInput" placeholder="Reply..." (keyup.enter)="sendChatReply(chatMessages[chatMessages.length-1])" />
+    <button (click)="sendChatReply(chatMessages[chatMessages.length-1])">Send</button>
+  </div>
+</div>
+
+<!-- Camera Modal -->
+<div class="camera-overlay" *ngIf="showCamera">
+  <div class="camera-modal">
+    <video id="collector-camera" autoplay playsinline></video>
+    <div class="camera-actions">
+      <button type="button" class="btn-close-cam" (click)="closeCamera()">✕ Close</button>
+      <button type="button" class="btn-capture" (click)="capturePhoto()">📸 Capture</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" *ngIf="selectedPhoto" (click)="selectedPhoto = null">
+  <img [src]="selectedPhoto" />
+</div>
+
+<!-- Location Error Modal -->
+<div class="location-error-overlay" *ngIf="locationError">
+  <div class="location-error-modal">
+    <div style="font-size:2rem">📍</div>
+    <h4>Unable to Determine Location</h4>
+    <p>Location access was denied or unavailable. The map will show a default location.</p>
+    <button class="btn-submit" (click)="locationError = false">OK</button>
+  </div>
+</div>
+<!-- Complete Collection Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showCompleteModal">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header"><h3>✅ Confirm Completion</h3></div>
+    <div class="modal-body">
+      <p style="color:#fff">Mark this schedule as <strong>completed</strong>?</p>
+      <p style="color:#fff"><strong>{{ scheduleToComplete?.routeId }}</strong> · {{ scheduleToComplete?.wasteType }}</p>
+      <p style="color:#fff">📅 {{ scheduleToComplete?.date }} · {{ scheduleToComplete?.timeSlot }}</p>
+      <p style="color:#fff">📍 {{ scheduleToComplete?.areas?.join(', ') }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showCompleteModal = false">Cancel</button>
+      <button class="btn-submit" (click)="completeCollection()">✅ Yes, Complete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Route Modal -->
+<div class="modal-overlay" *ngIf="showRouteModal">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📅 Select Your Route</h3>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="mySchedules.length; else noRoutes">
+        <div *ngFor="let s of mySchedules" class="route-option" [class.selected]="selectedSchedule?.id === s.id" (click)="selectedSchedule = s">
+          <div class="route-name">{{ s.routeId }}</div>
+          <div class="route-meta">
+            <span class="status-badge" [class]="s.status">{{ s.status }}</span>
+            <span>{{ s.date }} · {{ s.timeSlot }}</span>
+            <span>♻️ {{ s.wasteType }}</span>
+            <span>📍 {{ s.areas?.join(', ') }}</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noRoutes><p class="photo-hint">No schedules assigned to your truck.</p></ng-template>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-submit" [disabled]="!selectedSchedule" (click)="confirmRoute(selectedSchedule!)">🚛 Start Collection</button>
+    </div>
+  </div>
+</div>

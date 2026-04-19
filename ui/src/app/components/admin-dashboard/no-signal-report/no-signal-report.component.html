@@ -1,0 +1,85 @@
+<div class="report-container">
+  <div class="report-header">
+    <h2>⚠️ No Signal Report</h2>
+    <p class="report-subtitle">Trucks that lost signal during in-progress schedules</p>
+    <div class="view-toggle">
+      <button [class.active]="viewMode==='weekly'" (click)="setView('weekly')">Weekly</button>
+      <button [class.active]="viewMode==='monthly'" (click)="setView('monthly')">Monthly</button>
+      <button [class.active]="viewMode==='yearly'" (click)="setView('yearly')">Yearly</button>
+    </div>
+    <span class="period-label">{{ viewLabel }}</span>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <span>Loading report data…</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card warn">
+        <span class="card-icon">⚠️</span>
+        <span class="card-num">{{ totalNoSignalEvents }}</span>
+        <span class="card-label">No Signal Events</span>
+      </div>
+      <div class="summary-card">
+        <span class="card-icon">🚛</span>
+        <span class="card-num">{{ totalAffectedTrucks }}</span>
+        <span class="card-label">Affected Trucks</span>
+      </div>
+      <div class="summary-card" *ngIf="mostAffectedTruck">
+        <span class="card-icon">📍</span>
+        <span class="card-num">{{ mostAffectedTruck.plateNumber }}</span>
+        <span class="card-label">Most Affected ({{ mostAffectedTruck.totalEvents }} events)</span>
+      </div>
+      <div class="summary-card" *ngIf="!mostAffectedTruck">
+        <span class="card-icon">✅</span>
+        <span class="card-num">0</span>
+        <span class="card-label">No Issues Found</span>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="chart-section">
+      <h3>No Signal Events Over Time</h3>
+      <div class="bar-chart" *ngIf="chartData.length">
+        <div class="bar-group" *ngFor="let d of chartData">
+          <div class="bar-wrap">
+            <span class="bar-count" *ngIf="d.count > 0">{{ d.count }}</span>
+            <div class="bar" [style.height.%]="(d.count / chartMax) * 100" [class.has-events]="d.count > 0"></div>
+          </div>
+          <span class="bar-label">{{ d.label }}</span>
+        </div>
+      </div>
+      <div class="empty-chart" *ngIf="!chartData.length">No data for this period.</div>
+    </div>
+
+    <!-- Per-Truck Breakdown -->
+    <div class="breakdown-section">
+      <h3>Truck Breakdown</h3>
+      <div *ngIf="!truckSummaries.length" class="no-data">
+        <span>✅ No no-signal events detected in this period.</span>
+      </div>
+      <div class="truck-report-card" *ngFor="let t of truckSummaries">
+        <div class="truck-report-header">
+          <span class="plate">{{ t.plateNumber }}</span>
+          <span class="collector">{{ t.collectorName }}</span>
+          <span class="waste-type">♻️ {{ t.wasteType }}</span>
+          <span class="badge-events">{{ t.totalEvents }} event{{ t.totalEvents !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="truck-report-stats">
+          <span>📅 Days with no signal: <strong>{{ t.daysWithNoSignal }}</strong></span>
+          <span>⏱ Total offline duration: <strong>{{ t.totalDurationMinutes }} min</strong></span>
+        </div>
+        <div class="event-list">
+          <div class="event-row" *ngFor="let ev of t.events">
+            <span class="event-date">{{ ev.scheduleDate | date:'EEE, MMM d' }}</span>
+            <span class="event-detected">Last seen: {{ ev.detectedAt | date:'HH:mm' }}</span>
+            <span class="event-duration">{{ ev.durationMinutes }} min offline</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

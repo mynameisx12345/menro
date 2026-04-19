@@ -1,0 +1,279 @@
+<div class="portal" (click)="closeAccountMenu()">
+  <nav class="navbar">
+    <div class="nav-brand">
+      ♻️ MENRO EcoTrack <span class="badge resident">Resident</span>
+      <button class="notif-bell-btn mobile-notif-bell" (click)="openNotifications()" title="Notifications">
+        🔔
+        <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+      <div class="account-menu-wrap mobile-account" (click)="$event.stopPropagation()">
+        <button class="account-icon-btn" (click)="toggleAccountMenu()">👤</button>
+        <div class="account-dropdown" *ngIf="showAccountMenu" (click)="$event.stopPropagation()">
+          <div class="account-info">{{ user?.name }}</div>
+          <button (click)="openProfile()">👤 Profile</button>
+          <button (click)="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button *ngIf="features.residentTrackMap" [class.active]="activeTab==='map'" (click)="setTab('map')">🗺️ Track</button>
+      <button *ngIf="features.residentSchedule" [class.active]="activeTab==='schedule'" (click)="setTab('schedule')">📅 Schedule</button>
+      <button *ngIf="features.residentComplaints" [class.active]="activeTab==='complaint'" (click)="setTab('complaint')">📋 Report</button>
+    </div>
+    <button *ngIf="installPrompt || isIOS" (click)="installApp()" class="install-btn">⬇️ Install App</button>
+    <button class="notif-bell-btn" (click)="openNotifications()" title="Notifications">
+      🔔
+      <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </button>
+      <div class="account-menu-wrap" (click)="$event.stopPropagation()">
+      <button class="account-icon-btn" (click)="toggleAccountMenu()" title="Account">👤</button>
+      <div class="account-dropdown" *ngIf="showAccountMenu">
+        <div class="account-info">{{ user?.name }}</div>
+        <button (click)="openProfile()">👤 Profile</button>
+        <button (click)="logout()">🚪 Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Proximity Alert -->
+  <div class="alert-banner" *ngIf="nearbyTruck">
+    🔔 <strong>Alert:</strong> Truck {{ nearbyTruck.plateNumber }} ({{ nearbyTruck.wasteType }}) is within 1km of your location!
+  </div>
+  <div class="alert-banner" style="background:#856404" *ngIf="locationError">
+    ⚠️ Unable to determine your location. Map is showing a default area.
+  </div>
+
+  <!-- MAP TAB -->
+  <div *ngIf="features.residentTrackMap" [hidden]="activeTab!=='map'" class="tab-content">
+    <div id="resident-map" class="map-full">
+      <button *ngIf="installPrompt || isIOS" (click)="installApp()" class="install-btn-map">⬇️ Install App</button>
+      <!-- Map loader overlay -->
+      <div class="map-loader-overlay" *ngIf="mapLoading">
+        <div class="map-spinner"></div>
+        <span>Loading map…</span>
+      </div>
+      <!-- Refresh button -->
+      <button class="map-refresh-btn" (click)="refreshMap()" title="Refresh map" [disabled]="mapLoading">
+        🔄
+      </button>
+      <button *ngIf="activeWasteType" class="hint-btn" (click)="showWasteHint = !showWasteHint" title="Waste type info">💡</button>
+      <div class="hint-popup" *ngIf="showWasteHint && activeWasteType">
+        <div class="hint-title">{{ activeWasteType.name }}</div>
+        <div class="hint-desc">{{ activeWasteType.description }}</div>
+      </div>
+    </div>
+    <div class="truck-info-bar">
+      <ng-container *ngFor="let truck of trucks">
+        <div *ngIf="truck.status === 'active' && inProgressTruckIds.has(truck.id)"
+             class="truck-chip" [class.nearby]="isNearby(truck)">
+        🚛 {{ truck.plateNumber }} · {{ truck.wasteType }} · {{ truck.route }}
+        <span *ngIf="isNearby(truck)" class="nearby-tag">NEARBY</span>
+      </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- SCHEDULE TAB -->
+  <div *ngIf="features.residentSchedule && activeTab==='schedule'" class="tab-content">
+    <div class="panel">
+      <h3>Collection Schedule</h3>
+      <div class="schedule-cards">
+        <div *ngFor="let s of schedules" class="schedule-card">
+          <div class="schedule-header">
+            <span class="route-badge">{{ s.routeId }}</span>
+            <span class="status-badge" [class]="s.status">{{ s.status }}</span>
+          </div>
+          <div class="schedule-body">
+            <p>♻️ <strong>{{ s.wasteType }}</strong></p>
+            <p>📅 {{ s.date }} · ⏰ {{ s.timeSlot }}</p>
+            <p>📍 {{ s.areas?.join(', ') }}</p>
+            <p *ngIf="getTruck(s.truckId) as truck">🚛 {{ truck.plateNumber }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLAINT TAB -->
+  <div *ngIf="features.residentComplaints && activeTab==='complaint'" class="tab-content">
+    <div class="panel">
+      <h3>Report Missed Collection / Delay</h3>
+      <form #complaintForm="ngForm" class="complaint-form">
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="newComplaint.type" name="type" required>
+            <option value="" disabled selected>Select type</option>
+            <option value="missed-collection">Missed Collection</option>
+            <option value="delay">Delay</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Route ID</label>
+          <select [(ngModel)]="newComplaint.routeId" name="routeId" required>
+            <option value="" disabled selected>Select route</option>
+            <option *ngFor="let s of schedules" [value]="s.routeId">{{ s.routeId }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Your Address</label>
+          <input [(ngModel)]="newComplaint.address" name="address" required placeholder="e.g. 123 Main St, Barangay 1" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="newComplaint.description" name="description" required rows="3" placeholder="Describe the issue..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Photos <span class="required-note">(required — select or take multiple)</span></label>
+          <div class="photo-actions">
+            <label class="photo-upload-btn">
+              🖼️ Choose from Gallery
+              <input type="file" accept="image/*" multiple (change)="onPhotosSelected($event)" hidden />
+            </label>
+            <button type="button" class="photo-upload-btn" (click)="openCamera()">📷 Take Photo</button>
+          </div>
+          <div class="photo-previews" *ngIf="photos.length">
+            <div *ngFor="let p of photos; let i=index" class="photo-thumb">
+              <img [src]="p" (click)="selectedPhoto = p" />
+              <button type="button" (click)="removePhoto(i)">×</button>
+            </div>
+          </div>
+          <p class="photo-hint" *ngIf="!photos.length">No photos added yet.</p>
+        </div>
+        <button type="button" class="btn-primary" [disabled]="complaintForm.invalid || !photos.length" (click)="submitComplaint()">Submit Report</button>
+        <div class="success-msg" *ngIf="complaintSubmitted">✅ Complaint submitted! Admin has been notified.</div>
+      </form>
+
+      <h3 style="margin-top:2rem">My Reports</h3>
+      <div *ngFor="let c of myComplaints" class="complaint-item">
+        <div class="complaint-header">
+          <span>{{ c.type }}</span>
+          <span class="status-badge" [class]="c.status">{{ c.status }}</span>
+        </div>
+        <div class="photo-previews" *ngIf="c.photoUrls?.length">
+          <div *ngFor="let p of c.photoUrls" class="photo-thumb">
+            <img [src]="p" (click)="selectedPhoto = p" />
+          </div>
+        </div>
+        <p>{{ c.description }}</p>
+        <p class="timestamp">{{ c.timestamp | date:'medium' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="profile-overlay" *ngIf="showProfile" (click)="closeProfile()">
+  <div class="profile-modal" (click)="$event.stopPropagation()">
+    <div class="profile-header">
+      <h4>👤 My Profile</h4>
+      <button class="profile-close" (click)="closeProfile()">✕</button>
+    </div>
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" formControlName="name" placeholder="Full name" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="Email address" />
+      </div>
+      <div class="form-group">
+        <label>Password <span style="font-weight:400;color:#999;font-size:0.8rem">(leave blank to keep)</span></label>
+        <div class="pw-wrap">
+          <input [type]="showProfilePw ? 'text' : 'password'" formControlName="password" placeholder="New password" />
+          <button type="button" class="pw-eye" (click)="showProfilePw = !showProfilePw">{{ showProfilePw ? '🙈' : '👁️' }}</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>
+          Home Address
+          <button type="button" class="btn-map-toggle" (click)="toggleProfileMap()">
+            🗺️ {{ showProfileMap ? 'Hide Map' : 'Select on Map' }}
+          </button>
+        </label>
+        <div *ngIf="showProfileMap" id="profile-map" class="reg-map"></div>
+        <input type="text" formControlName="address" placeholder="Type or pick on map" />
+      </div>
+      <div class="reg-error" *ngIf="profileError">{{ profileError }}</div>
+      <div class="reg-success" *ngIf="profileSuccess">{{ profileSuccess }}</div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="profileForm.invalid || profileLoading">{{ profileLoading ? 'Saving...' : 'Save Changes' }}</button>
+        <button type="button" class="btn-secondary" (click)="closeProfile()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Camera Modal -->
+<div class="camera-overlay" *ngIf="showCamera">
+  <div class="camera-modal">
+    <video id="camera-preview" autoplay playsinline></video>
+    <div class="camera-actions">
+      <button type="button" class="btn-close-cam" (click)="closeCamera()">✕ Close</button>
+      <button type="button" class="btn-capture" (click)="capturePhoto()">📸 Capture</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" *ngIf="selectedPhoto" (click)="selectedPhoto = null">
+  <img [src]="selectedPhoto" />
+</div>
+
+<!-- Location Error Modal -->
+<div class="location-error-overlay" *ngIf="locationError">
+  <div class="location-error-modal">
+    <div style="font-size:2rem">📍</div>
+    <h4>Unable to Determine Location</h4>
+    <p>We couldn't resolve your home address. The map will show a default location.</p>
+    <button class="btn-primary" (click)="locationError = false">OK</button>
+  </div>
+</div>
+
+<!-- Chat Panel -->
+<div class="chat-overlay" *ngIf="chatTruck">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <span>💬 Chat with 🚛 {{ chatTruck.plateNumber }} ({{ chatTruck.wasteType }})</span>
+      <button class="chat-close" (click)="closeChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div *ngFor="let m of chatMessages" class="chat-msg" [class.mine]="m.fromId === user?.id">
+        <span class="chat-name">{{ m.fromId === user?.id ? 'You' : m.fromName }}</span>
+        <span class="chat-bubble">{{ m.message }}</span>
+      </div>
+      <div *ngIf="!chatMessages.length" class="chat-empty">No messages yet. Say hello! 👋</div>
+    </div>
+    <div class="chat-input-row">
+      <input [(ngModel)]="chatInput" placeholder="Type a message..." (keyup.enter)="sendChatMessage()" />
+      <button (click)="sendChatMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications Full-Screen -->
+<div class="notif-overlay" *ngIf="showNotifications">
+  <div class="notif-screen">
+    <div class="notif-header">
+      <h3>🔔 Notifications</h3>
+      <div class="notif-header-actions">
+        <button class="btn-text" (click)="clearNotifications()" *ngIf="notifications.length">Clear all</button>
+        <button class="notif-close" (click)="closeNotifications()">✕</button>
+      </div>
+    </div>
+    <div class="notif-list" *ngIf="notifications.length; else noNotifs">
+      <div *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.read">
+        <div class="notif-icon">{{ n.type === 'truck_nearby' ? '🚛' : '🚫' }}</div>
+        <div class="notif-body">
+          <p class="notif-title">{{ n.title }}</p>
+          <p class="notif-msg">{{ n.message }}</p>
+          <p class="notif-time">{{ n.timestamp | date:'medium' }}</p>
+        </div>
+      </div>
+    </div>
+    <ng-template #noNotifs>
+      <div class="notif-empty">No notifications yet.</div>
+    </ng-template>
+  </div>
+</div>

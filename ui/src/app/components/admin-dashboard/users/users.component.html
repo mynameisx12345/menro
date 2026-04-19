@@ -1,0 +1,130 @@
+<div class="panel">
+  <div class="panel-header">
+    <h3>Users</h3>
+    <div class="header-actions">
+      <input class="search-input" [value]="search" (input)="search = $any($event.target).value; page = 1" placeholder="🔍 Search..." />
+      <button class="btn-filter" [class.active]="pendingOnly" (click)="pendingOnly = !pendingOnly; page = 1">
+        ⏳ Pending Approval<span *ngIf="pendingOnly"> ✕</span>
+      </button>
+      <button class="btn-primary" (click)="openForm()">+ New User</button>
+    </div>
+  </div>
+
+  <div *ngIf="showForm" class="form-card">
+    <h4>{{ editingUser ? 'Edit User' : 'Register New User' }}</h4>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" formControlName="name" placeholder="Full name" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" formControlName="email" placeholder="Email address" />
+        </div>
+        <div class="form-group">
+          <label>Password <span *ngIf="editingUser" style="font-weight:400;color:#999">(leave blank to keep)</span></label>
+          <div class="pw-wrap">
+            <input [type]="showPw ? 'text' : 'password'" formControlName="password" placeholder="Password" />
+            <button type="button" class="pw-eye" (click)="showPw = !showPw">{{ showPw ? '🙈' : '👁️' }}</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>User Type</label>
+          <select formControlName="role" (change)="onRoleChange(form.value.role)">
+            <option value="">Select role</option>
+            <option value="admin">Management (Admin)</option>
+            <option value="resident">Resident</option>
+            <option value="collector">Collector</option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="form.value.role === 'collector'">
+          <label>Assigned Truck</label>
+          <select formControlName="truckId">
+            <option value="">Select truck</option>
+            <option *ngFor="let t of trucks" [value]="t.id">{{ t.plateNumber }} — {{ t.route }}</option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="form.value.role === 'resident'">
+          <label>
+            Home Address
+            <button type="button" class="btn-map-toggle" (click)="toggleRegMap()">
+              🗺️ {{ showRegMap ? 'Hide Map' : 'Select on Map' }}
+            </button>
+          </label>
+          <div *ngIf="showRegMap" id="reg-map" class="reg-map"></div>
+          <input type="text" formControlName="address" placeholder="Type or pick on map" />
+        </div>
+      </div>
+      <div class="reg-error" *ngIf="error">{{ error }}</div>
+      <div class="reg-success" *ngIf="success">{{ success }}</div>
+      <div class="form-group toggle-group" *ngIf="editingUser">
+        <label class="toggle-label">
+          <input type="checkbox" formControlName="isDisabled" style="margin-right:8px" />
+          <span>Disable this account</span>
+        </label>
+      </div>
+      <div class="form-group" *ngIf="editingUser && editingUser.role === 'resident'">
+        <label>Approval Status</label>
+        <select formControlName="status">
+          <option value="pending">Pending Approval</option>
+          <option value="approved">Approved</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">{{ loading ? 'Saving...' : (editingUser ? 'Update' : 'Register') }}</button>
+        <button type="button" class="btn-secondary" (click)="cancelForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <table class="data-table">
+    <thead><tr>
+      <th (click)="setSort('name')" class="sortable">Name <span class="sort-icon">{{ sortCol==='name' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <th (click)="setSort('email')" class="sortable">Email <span class="sort-icon">{{ sortCol==='email' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <th (click)="setSort('role')" class="sortable">Role <span class="sort-icon">{{ sortCol==='role' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <th>Truck / Address</th>
+      <th (click)="setSort('disabled')" class="sortable">Status <span class="sort-icon">{{ sortCol==='disabled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <th>Actions</th>
+    </tr></thead>
+    <tbody>
+      <tr *ngIf="loadingUsers">
+        <td colspan="6" class="loading-cell"><span class="table-spinner"></span> Loading...</td>
+      </tr>
+      <tr *ngFor="let u of paged" [hidden]="loadingUsers">
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td><span class="role-badge" [class]="u.role">{{ u.role }}</span></td>
+        <td>{{ u.role === 'collector' ? getTruckLabel(u.truckId) : (u.address || '—') }}</td>
+        <td>
+          <span *ngIf="u.status === 'pending'" class="status-badge pending">Pending Approval</span>
+          <span *ngIf="u.status !== 'pending'" class="status-badge" [class]="u.disabled ? 'disabled' : 'active'">{{ u.disabled ? 'Disabled' : 'Active' }}</span>
+        </td>
+        <td>
+          <button *ngIf="u.status === 'pending'" class="btn-sm success" (click)="approveUser(u)">✓ Approve</button>
+          <button class="btn-sm" (click)="editUser(u)">Edit</button>
+          <button class="btn-sm danger" (click)="deleteUser(u.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <div class="page-size">
+      Rows per page:
+      <select [value]="pageSize" (change)="pageSize = +$any($event.target).value; page = 1">
+        <option *ngFor="let n of [10, 20, 50]" [value]="n">{{ n }}</option>
+      </select>
+    </div>
+    <div class="page-info">
+      {{ filtered.length ? (page-1)*pageSize+1 : 0 }}–{{ page*pageSize > filtered.length ? filtered.length : page*pageSize }} of {{ filtered.length }}
+    </div>
+    <div class="page-nav">
+      <button (click)="page=1" [disabled]="page===1">«</button>
+      <button (click)="page=page-1" [disabled]="page===1">‹</button>
+      <span>{{ page }} / {{ totalPages }}</span>
+      <button (click)="page=page+1" [disabled]="page===totalPages">›</button>
+      <button (click)="page=totalPages" [disabled]="page===totalPages">»</button>
+    </div>
+  </div>
+</div>

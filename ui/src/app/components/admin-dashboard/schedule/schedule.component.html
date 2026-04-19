@@ -1,0 +1,135 @@
+<div class="panel">
+  <div class="panel-header">
+    <h3>Collection Schedules</h3>
+    <div class="header-actions">
+      <input class="search-input" [value]="search" (input)="search = $any($event.target).value; page = 1" placeholder="🔍 Search..." />
+      <button class="btn-primary" (click)="openForm()">+ New Schedule</button>
+    </div>
+  </div>
+
+  <div *ngIf="showForm" class="form-card">
+    <h4>{{ editingSchedule ? 'Edit Schedule' : 'Create Schedule' }}</h4>
+    <form [formGroup]="form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Route ID</label>
+          <input formControlName="routeId" placeholder="e.g. Route D" />
+        </div>
+        <div class="form-group">
+          <label>Waste Type</label>
+          <select formControlName="wasteType">
+            <option value="" disabled>Select type</option>
+            <option *ngFor="let w of wasteTypes$ | async" [value]="w.name">{{ w.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Truck</label>
+          <select formControlName="truckId">
+            <option value="" disabled>Select truck</option>
+            <option *ngFor="let t of trucks" [value]="t.id">{{ t.plateNumber }} - {{ t.route }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" formControlName="date" />
+        </div>
+        <div class="form-group">
+          <label>Time Slot</label>
+          <div class="time-range">
+            <input type="time" formControlName="timeFrom" />
+            <span>to</span>
+            <input type="time" formControlName="timeTo" />
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label>
+            Areas
+            <button type="button" class="btn-map-toggle" (click)="toggleMap()">
+              🗺️ {{ showMap ? 'Hide Map' : 'Select on Map' }}
+            </button>
+          </label>
+          <div *ngIf="showMap" id="schedule-map" class="schedule-map"></div>
+          <div class="selected-areas" *ngIf="selectedAreas.length">
+            <span *ngFor="let a of selectedAreas; let i=index" class="area-tag">
+              {{ a }} <button type="button" (click)="removeArea(i)">×</button>
+            </span>
+          </div>
+          <input formControlName="areasInput" placeholder="Or type: Barangay 1, Barangay 2" (change)="syncAreasFromInput()" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-primary" [disabled]="form.invalid" (click)="saveSchedule()">{{ editingSchedule ? 'Update' : 'Save' }}</button>
+        <button type="button" class="btn-secondary" (click)="cancelForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th (click)="setSort('routeId')" class="sortable">Route <span class="sort-icon">{{ sortCol==='routeId' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('truckId')" class="sortable">Truck <span class="sort-icon">{{ sortCol==='truckId' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('wasteType')" class="sortable">Waste Type <span class="sort-icon">{{ sortCol==='wasteType' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('date')" class="sortable">Date <span class="sort-icon">{{ sortCol==='date' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th (click)="setSort('timeSlot')" class="sortable">Time <span class="sort-icon">{{ sortCol==='timeSlot' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th>Areas</th>
+        <th (click)="setSort('status')" class="sortable">Status <span class="sort-icon">{{ sortCol==='status' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="loading">
+        <td colspan="8" class="loading-cell"><span class="table-spinner"></span> Loading...</td>
+      </tr>
+      <tr *ngFor="let s of paged" [hidden]="loading">
+        <td>{{ s.routeId }}</td>
+        <td>{{ getTruckLabel(s.truckId) }}</td>
+        <td><span class="waste-badge" [class]="s.wasteType.toLowerCase()">{{ s.wasteType }}</span></td>
+        <td>{{ s.date }}</td>
+        <td>{{ s.timeSlot }}</td>
+        <td>{{ s.areas?.join(', ') }}</td>
+        <td><span class="status-badge" [class]="s.status">{{ s.status }}</span></td>
+        <td>
+          <button class="btn-sm success" *ngIf="s.status === 'pending'" (click)="updateStatus(s.id, 'completed')">Done</button>
+          <button class="btn-sm" *ngIf="s.status === 'pending'" (click)="editSchedule(s)">Edit</button>
+          <button class="btn-sm danger" *ngIf="s.status === 'pending'" (click)="openCancelModal(s)">Cancel</button>
+          <button class="btn-sm success" *ngIf="s.status === 'in-progress'" (click)="updateStatus(s.id, 'completed')">Done</button>
+          <span *ngIf="s.status !== 'pending' && s.status !== 'in-progress'" class="status-badge" [class]="s.status">{{ s.status }}</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <div class="page-size">
+      Rows per page:
+      <select [value]="pageSize" (change)="pageSize = +$any($event.target).value; page = 1">
+        <option *ngFor="let n of [10, 20, 50]" [value]="n">{{ n }}</option>
+      </select>
+    </div>
+    <div class="page-info">
+      {{ filtered.length ? (page-1)*pageSize+1 : 0 }}–{{ page*pageSize > filtered.length ? filtered.length : page*pageSize }} of {{ filtered.length }}
+    </div>
+    <div class="page-nav">
+      <button (click)="page=1" [disabled]="page===1">«</button>
+      <button (click)="page=page-1" [disabled]="page===1">‹</button>
+      <span>{{ page }} / {{ totalPages }}</span>
+      <button (click)="page=page+1" [disabled]="page===totalPages">›</button>
+      <button (click)="page=totalPages" [disabled]="page===totalPages">»</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Schedule Modal -->
+<div class="modal-overlay" *ngIf="cancelTarget">
+  <div class="modal-card">
+    <h4>Cancel Schedule</h4>
+    <p>Cancel <strong>{{ cancelTarget.routeId }}</strong> ({{ cancelTarget.wasteType }}, {{ cancelTarget.date }})?</p>
+    <p class="modal-sub">Do you want to notify residents about this cancellation?</p>
+    <div class="modal-actions">
+      <button class="btn-sm success" (click)="confirmCancel(true)">Cancel &amp; Notify</button>
+      <button class="btn-sm danger" (click)="confirmCancel(false)">Cancel Only</button>
+      <button class="btn-sm" (click)="cancelTarget = null">Back</button>
+    </div>
+  </div>
+</div>

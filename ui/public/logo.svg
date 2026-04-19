@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="#1565c0"/>
+  <!-- White circle inner -->
+  <circle cx="256" cy="256" r="210" fill="#0d47a1"/>
+  <!-- Recycling arrows -->
+  <g fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Arrow 1 (top) -->
+    <path d="M256 100 L310 190 L202 190 Z" fill="#4caf50" stroke="none"/>
+    <!-- Arrow 2 (bottom-right) -->
+    <path d="M340 340 L230 340 L285 250 Z" fill="#4caf50" stroke="none"/>
+    <!-- Arrow 3 (bottom-left) -->
+    <path d="M172 340 L227 250 L117 250 Z" fill="#4caf50" stroke="none"/>
+    <!-- Connecting arcs -->
+    <path d="M310 190 Q370 190 340 340" stroke="#4caf50" stroke-width="22" fill="none"/>
+    <path d="M202 190 Q130 190 172 340" stroke="#4caf50" stroke-width="22" fill="none"/>
+    <path d="M172 340 L340 340" stroke="#4caf50" stroke-width="22" fill="none"/>
+  </g>
+  <!-- Leaf accent -->
+  <ellipse cx="256" cy="256" rx="30" ry="50" fill="#81c784" transform="rotate(-30 256 256)"/>
+  <ellipse cx="256" cy="256" rx="30" ry="50" fill="#66bb6a" transform="rotate(90 256 256)"/>
+  <!-- Text: MENRO -->
+  <text x="256" y="420" font-family="Arial,sans-serif" font-weight="900" font-size="58" fill="#ffffff" text-anchor="middle" letter-spacing="4">MENRO</text>
+  <!-- Text: EcoTrack -->
+  <text x="256" y="468" font-family="Arial,sans-serif" font-weight="400" font-size="32" fill="#bbdefb" text-anchor="middle" letter-spacing="2">EcoTrack</text>
+</svg>

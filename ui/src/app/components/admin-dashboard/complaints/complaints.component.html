@@ -1,0 +1,97 @@
+<div class="complaints-tabs">
+  <button [class.active]="activeTab==='resident'" (click)="activeTab='resident'">📋 Resident Complaints</button>
+  <button [class.active]="activeTab==='collector'" (click)="activeTab='collector'">🚛 Collector Issues</button>
+</div>
+
+<div *ngIf="activeTab==='resident'">
+  <app-data-table
+    title="Resident Complaints"
+    [rows]="complaints"
+    [columns]="residentColumns"
+    [actions]="residentActions"
+    [loading]="loadingComplaints"
+    [searchFields]="['residentName','type','routeId','address','description','status']">
+  </app-data-table>
+</div>
+
+<div *ngIf="activeTab==='collector'">
+  <app-data-table
+    title="Collector Issues"
+    [rows]="segregationIssues"
+    [columns]="collectorColumns"
+    [actions]="collectorActions"
+    [loading]="loadingIssues"
+    [searchFields]="['collectorName','address','wasteType','issue','status']">
+  </app-data-table>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" *ngIf="viewingComplaint" (click)="viewingComplaint = null">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Complaint Details</h3>
+      <button class="modal-close" (click)="viewingComplaint = null">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">Resident</span><span>{{ viewingComplaint.residentName }}</span></div>
+        <div class="detail-item"><span class="detail-label">Type</span><span>{{ viewingComplaint.type }}</span></div>
+        <div class="detail-item"><span class="detail-label">Route</span><span>{{ viewingComplaint.routeId }}</span></div>
+        <div class="detail-item"><span class="detail-label">Address</span><span>{{ viewingComplaint.address }}</span></div>
+        <div class="detail-item"><span class="detail-label">Date</span><span>{{ viewingComplaint.timestamp | date:'medium' }}</span></div>
+        <div class="detail-item"><span class="detail-label">Status</span><span class="status-badge" [class]="viewingComplaint.status">{{ viewingComplaint.status }}</span></div>
+        <div class="detail-item full"><span class="detail-label">Description</span><p>{{ viewingComplaint.description }}</p></div>
+      </div>
+      <div *ngIf="viewingComplaint.photoUrls?.length" class="modal-photos">
+        <span class="detail-label">Photos ({{ viewingComplaint.photoUrls!.length }})</span>
+        <div class="photo-grid">
+          <img *ngFor="let p of viewingComplaint.photoUrls" [src]="p" (click)="selectedPhoto = p" />
+        </div>
+      </div>
+      <div *ngIf="!viewingComplaint.photoUrls?.length" class="no-photos">No photos attached.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" (click)="resolveComplaint(viewingComplaint.id, 'reviewing')">Mark Reviewing</button>
+      <button class="btn-sm success" (click)="resolveComplaint(viewingComplaint.id, 'resolved')">Mark Resolved</button>
+      <button class="btn-secondary" (click)="viewingComplaint = null">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" *ngIf="selectedPhoto" (click)="selectedPhoto = null">
+  <img [src]="selectedPhoto" />
+</div>
+
+<!-- Collector Issue Modal -->
+<div class="modal-overlay" *ngIf="viewingIssue" (click)="viewingIssue = null">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Collector Report Details</h3>
+      <button class="modal-close" (click)="viewingIssue = null">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">Collector</span><span>{{ viewingIssue.collectorName }}</span></div>
+        <div class="detail-item"><span class="detail-label">Waste Type</span><span>{{ viewingIssue.wasteType }}</span></div>
+        <div class="detail-item"><span class="detail-label">Address</span><span>{{ viewingIssue.address }}</span></div>
+        <div class="detail-item"><span class="detail-label">Date</span><span>{{ viewingIssue.timestamp | date:'medium' }}</span></div>
+        <div class="detail-item"><span class="detail-label">Status</span><span class="status-badge" [class]="viewingIssue.status">{{ viewingIssue.status }}</span></div>
+        <!-- <div class="detail-item"><span class="detail-label">Resident Notified</span><span>{{ viewingIssue.residentNotified ? '✅ Yes' : '❌ No' }}</span></div> -->
+        <div class="detail-item full"><span class="detail-label">Issue</span><p>{{ viewingIssue.issue }}</p></div>
+      </div>
+      <div *ngIf="viewingIssue.photoUrls?.length" class="modal-photos">
+        <span class="detail-label">Photos ({{ viewingIssue.photoUrls!.length }})</span>
+        <div class="photo-grid">
+          <img *ngFor="let p of viewingIssue.photoUrls" [src]="p" (click)="selectedPhoto = p" />
+        </div>
+      </div>
+      <div *ngIf="!viewingIssue.photoUrls?.length" class="no-photos">No photos attached.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" (click)="resolveIssue(viewingIssue.id, 'reviewing')">Mark Reviewing</button>
+      <button class="btn-sm success" (click)="resolveIssue(viewingIssue.id, 'resolved')">Mark Resolved</button>
+      <button class="btn-secondary" (click)="viewingIssue = null">Close</button>
+    </div>
+  </div>
+</div>

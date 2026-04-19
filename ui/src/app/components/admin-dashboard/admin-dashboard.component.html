@@ -1,0 +1,164 @@
+<div class="dashboard">
+  <nav class="navbar">
+    <div class="nav-brand">♻️ MENRO EcoTrack <span class="badge admin">Admin</span></div>
+    <div class="nav-tabs">
+      <button *ngIf="features.adminLiveMap" [class.active]="activeTab==='map'" (click)="setTab('map')">🗺️ Live Map</button>
+      <button *ngIf="features.adminSchedules" [class.active]="activeTab==='operations'" (click)="setTab('operations')">🚛 Operations</button>
+      <button *ngIf="features.adminComplaints" [class.active]="activeTab==='complaints'" (click)="setTab('complaints')">📋 Complaints</button>
+    </div>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </nav>
+  <!-- Mobile tab bar (shown below navbar on small screens via CSS) -->
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <ng-container *ngIf="(activeTrucks$ | async) !== null; else skelNum"><span class="stat-num">{{ activeTrucks$ | async }}</span></ng-container>
+      <ng-template #skelNum><span class="stat-skel"></span></ng-template>
+      <span>Trucks on Route</span>
+    </div>
+    <div class="stat">
+      <ng-container *ngIf="(activeResidents$ | async) !== null; else skelRes"><span class="stat-num">{{ activeResidents$ | async }}</span></ng-container>
+      <ng-template #skelRes><span class="stat-skel"></span></ng-template>
+      <span>Active Residents</span>
+    </div>
+    <div class="stat">
+      <ng-container *ngIf="(openComplaints$ | async) !== null; else skelComp"><span class="stat-num">{{ openComplaints$ | async }}</span></ng-container>
+      <ng-template #skelComp><span class="stat-skel"></span></ng-template>
+      <span>Open Resident Complaints</span>
+    </div>
+    <div class="stat">
+      <ng-container *ngIf="(openCollectorIssues$ | async) !== null; else skelIssue"><span class="stat-num">{{ openCollectorIssues$ | async }}</span></ng-container>
+      <ng-template #skelIssue><span class="stat-skel"></span></ng-template>
+      <span>Open Collector Issues</span>
+    </div>
+  </div>
+
+  <!-- MAP TAB -->
+  <div *ngIf="features.adminLiveMap" [hidden]="activeTab!=='map'" class="tab-content">
+    <div class="map-layout">
+      <div class="map-wrapper">
+        <div id="admin-map" class="map-container"></div>
+        <!-- Map loading spinner -->
+        <div class="map-spinner-overlay" *ngIf="mapLoading">
+          <div class="map-spinner"></div>
+          <span>Loading map data…</span>
+        </div>
+        <!-- Refresh map button -->
+        <button class="map-refresh-btn" *ngIf="!mapLoading" (click)="refreshMap()" title="Refresh map">
+          🔄 Don't see trucks or routes? Refresh map
+        </button>
+        <!-- Mobile fleet chips overlaid on map -->
+        <div class="fleet-chips">
+          <ng-container *ngFor="let truck of trucks">
+            <div *ngIf="inProgressTruckIds.value.has(truck.id)" class="fleet-chip" [class]="truck.status" [class.no-signal]="isNoSignal(truck)" (click)="focusTruck(truck)">
+              <span *ngIf="isNoSignal(truck)">⚠️</span>
+              <span class="chip-plate">{{ truck.plateNumber }}</span>
+              <span class="chip-type">{{ truck.wasteType }}</span>
+              <button class="chip-chat" (click)="$event.stopPropagation(); openChat(truck)">💬</button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      <div class="truck-list">
+        <h3>Fleet Status</h3>
+        <ng-container *ngIf="mapLoading; else fleetLoaded">
+          <div class="truck-card skel-card" *ngFor="let i of [1,2,3]">
+            <div class="truck-header">
+              <span class="skel-line skel-plate"></span>
+              <span class="skel-line skel-status"></span>
+            </div>
+            <div class="truck-info">
+              <span class="skel-line"></span>
+              <span class="skel-line"></span>
+              <span class="skel-line"></span>
+              <span class="skel-line skel-short"></span>
+            </div>
+            <span class="skel-line skel-btn"></span>
+          </div>
+        </ng-container>
+        <ng-template #fleetLoaded>
+          <ng-container *ngFor="let truck of trucks">
+            <div *ngIf="inProgressTruckIds.value.has(truck.id)" class="truck-card" (click)="focusTruck(truck)">
+              <span class="no-signal-badge" *ngIf="isNoSignal(truck)">⚠️ No Signal</span>
+              <div class="truck-header">
+                <span class="plate">{{ truck.plateNumber }}</span>
+                <span class="status-dot" [class]="truck.status">{{ truck.status }}</span>
+              </div>
+              <div class="truck-info">
+                <span>🚛 {{ truck.collectorName }}</span>
+                <span>♻️ {{ truck.wasteType }}</span>
+                <span>📍 {{ truck.route }}</span>
+                <span class="last-update">Updated: {{ truck.lastUpdated | date:'HH:mm:ss' }}</span>
+              </div>
+              <button class="chat-btn" (click)="$event.stopPropagation(); openChat(truck)">💬 Chat</button>
+            </div>
+          </ng-container>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPERATIONS TAB (Schedules + Fleet) -->
+  <div *ngIf="features.adminSchedules && activeTab==='operations'" class="tab-content">
+    <div class="sub-tabs">
+      <button [class.active]="subTab==='schedules'" (click)="subTab='schedules'">📅 Schedules</button>
+      <button [class.active]="subTab==='fleet'" (click)="subTab='fleet'">⚙️ Fleet</button>
+      <button [class.active]="subTab==='waste-types'" (click)="subTab='waste-types'">♻️ Waste Types</button>
+      <button [class.active]="subTab==='users'" (click)="subTab='users'">👥 Users</button>
+      <button [class.active]="subTab==='no-signal'" (click)="subTab='no-signal'">⚠️ No Signal Report</button>
+      <button [class.active]="subTab==='settings'" (click)="subTab='settings'">⚙️ Settings</button>
+    </div>
+
+    <!-- SCHEDULES -->
+    <div *ngIf="subTab==='schedules'">
+      <app-schedule [trucks]="trucks"></app-schedule>
+    </div>
+
+    <!-- FLEET -->
+    <div *ngIf="subTab==='fleet'">
+      <app-fleet [trucks]="trucks" [loading]="loadingTrucks" (trucksChange)="onTrucksChange($event)"></app-fleet>
+    </div>
+    <!-- WASTE TYPES -->
+    <div *ngIf="subTab==='waste-types'">
+      <app-waste-type></app-waste-type>
+    </div>
+    <!-- USERS -->
+    <div *ngIf="subTab==='users'">
+      <app-users [trucks]="trucks"></app-users>
+    </div>
+    <!-- NO SIGNAL REPORT -->
+    <div *ngIf="subTab==='no-signal'">
+      <app-no-signal-report [trucks]="trucks"></app-no-signal-report>
+    </div>
+    <!-- SETTINGS -->
+    <div *ngIf="subTab==='settings'">
+      <app-settings></app-settings>
+    </div>
+  </div>
+
+  <div *ngIf="features.adminComplaints && activeTab==='complaints'" class="tab-content">
+    <app-complaints></app-complaints>
+  </div>
+</div>
+
+<!-- Chat Panel -->
+<div class="chat-overlay" *ngIf="chatTruck">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <span>💬 Chat with 🚛 {{ chatTruck.plateNumber }} ({{ chatTruck.wasteType }})</span>
+      <button class="chat-close" (click)="closeChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="admin-chat-messages">
+      <div *ngFor="let m of chatMessages" class="chat-msg" [class.mine]="m.fromId === auth.getStoredUser()?.id">
+        <span class="chat-name">{{ m.fromId === auth.getStoredUser()?.id ? 'You' : m.fromName }}</span>
+        <span class="chat-bubble">{{ m.message }}</span>
+      </div>
+      <div *ngIf="!chatMessages.length" class="chat-empty">No messages yet. Say hello! 👋</div>
+    </div>
+    <div class="chat-input-row">
+      <input [(ngModel)]="chatInput" placeholder="Type a message..." (keyup.enter)="sendChatMessage()" />
+      <button (click)="sendChatMessage()">Send</button>
+    </div>
+  </div>
+</div>

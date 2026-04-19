@@ -1,0 +1,64 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="logo">
+      <span class="logo-icon">♻️</span>
+      <h1>MENRO EcoTrack</h1>
+      <p>Resident Registration</p>
+    </div>
+
+    <div class="success-msg" *ngIf="success">
+      ✅ {{ success }}
+      <br><a routerLink="/menro/login">Back to Login</a>
+    </div>
+
+    <!-- Push notification modal -->
+    <div class="push-modal-overlay" *ngIf="showPushPrompt">
+      <div class="push-modal">
+        <p>🔔 Would you like to receive a push notification when your account is approved?</p>
+        <div class="push-prompt-actions">
+          <button class="btn-yes" (click)="enablePush()">Yes, notify me</button>
+          <button class="btn-no" (click)="resolvePrompt()">No thanks</button>
+        </div>
+        <p class="push-status" *ngIf="pushStatus">{{ pushStatus }}</p>
+      </div>
+    </div>
+
+    <form *ngIf="!success" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" formControlName="name" placeholder="Your full name" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="Email address" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input [type]="showPw ? 'text' : 'password'" formControlName="password" placeholder="Create a password" />
+          <button type="button" class="pw-eye" (click)="showPw = !showPw">{{ showPw ? '🙈' : '👁️' }}</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>
+          Home Address
+          <button type="button" class="btn-map-toggle" (click)="toggleRegMap()">
+            🗺️ {{ showRegMap ? 'Hide Map' : 'Select on Map' }}
+          </button>
+        </label>
+        <div *ngIf="showRegMap" id="reg-map" class="reg-map"></div>
+        <input type="text" formControlName="address" placeholder="Type or pick on map" />
+      </div>
+
+      <div class="error" *ngIf="error">{{ error }}</div>
+
+      <button type="submit" [disabled]="form.invalid || loading">
+        {{ loading ? 'Submitting...' : 'Register' }}
+      </button>
+    </form>
+
+    <div class="login-link" *ngIf="!success">
+      Already have an account? <a routerLink="/menro/login">Sign In</a>
+    </div>
+  </div>
+</div>
