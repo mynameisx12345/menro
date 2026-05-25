@@ -54,7 +54,7 @@
             <div *ngIf="inProgressTruckIds.value.has(truck.id)" class="fleet-chip" [class]="truck.status" [class.no-signal]="isNoSignal(truck)" (click)="focusTruck(truck)">
               <span *ngIf="isNoSignal(truck)">⚠️</span>
               <span class="chip-plate">{{ truck.plateNumber }}</span>
-              <span class="chip-type">{{ truck.wasteType }}</span>
+              <span class="chip-type">{{ getInProgressSchedule(truck.id)?.wasteType || truck.wasteType }}</span>
               <button class="chip-chat" (click)="$event.stopPropagation(); openChat(truck)">💬</button>
             </div>
           </ng-container>
@@ -87,8 +87,8 @@
               </div>
               <div class="truck-info">
                 <span>🚛 {{ truck.collectorName }}</span>
-                <span>♻️ {{ truck.wasteType }}</span>
-                <span>📍 {{ truck.route }}</span>
+                <span>♻️ {{ getInProgressSchedule(truck.id)?.wasteType || truck.wasteType }}</span>
+                <span>📍 {{ getInProgressSchedule(truck.id)?.routeId || truck.route }}</span>
                 <span class="last-update">Updated: {{ truck.lastUpdated | date:'HH:mm:ss' }}</span>
               </div>
               <button class="chat-btn" (click)="$event.stopPropagation(); openChat(truck)">💬 Chat</button>

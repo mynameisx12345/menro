@@ -36,7 +36,7 @@ export class CollectorAppComponent implements OnInit, AfterViewInit, OnDestroy {
   showCompleteModal = false;
   scheduleToComplete: Schedule | null = null;
   collectionCompleted = false;
-  get activeSchedules() { return this.mySchedules.filter(s => s.status !== 'completed'); }
+  get activeSchedules() { return this.mySchedules.filter(s => s.status === 'in-progress'); }
   showWasteHint = false;
   get currentWasteType(): WasteType | null {
     if (!this.selectedSchedule) return null;
@@ -114,7 +114,7 @@ export class CollectorAppComponent implements OnInit, AfterViewInit, OnDestroy {
   loadMySchedules(showModal = false) {
     this.dataSvc.getSchedules().subscribe((schedules: Schedule[]) => {
       const truckId = this.user?.truckId;
-      this.mySchedules = schedules.filter(s => s.truckId === truckId && s.status !== 'completed');
+      this.mySchedules = schedules.filter(s => s.truckId === truckId && s.status !== 'completed' && s.status !== 'cancelled');
       this.cdr.detectChanges();
     });
   }

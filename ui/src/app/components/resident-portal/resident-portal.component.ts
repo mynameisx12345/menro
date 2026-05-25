@@ -28,6 +28,8 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
   activeTab = 'map';
   trucks: Truck[] = [];
   schedules: Schedule[] = [];
+  get activeSchedules() { return this.schedules.filter(s => s.status === 'pending' || s.status === 'in-progress'); }
+  get schedulesByDateDesc() { return [...this.schedules].sort((a, b) => b.date.localeCompare(a.date)); }
   inProgressTruckIds = new Set<string>();
   myComplaints: Complaint[] = [];
   nearbyTruck: Truck | null = null;
@@ -90,7 +92,7 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
     this.sub = this.truckSvc.trucks$.subscribe(trucks => {
       this.trucks = trucks;
       this.dataSvc.getSchedules().subscribe(s => {
-        this.schedules = s.filter(x => x.status !== 'completed');
+        this.schedules = s.filter(x => x.status !== 'cancelled');
         this.inProgressTruckIds = new Set(this.schedules.filter(x => x.status === 'in-progress').map(x => x.truckId));
         this.updateMarkers();
       });
@@ -191,6 +193,10 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
     if (!this.map) return;
     this.trucks.forEach(truck => {
       if (truck.lat == null || truck.lng == null) return;
+      if (!this.inProgressTruckIds.has(truck.id)) {
+        if (this.markers.has(truck.id)) { this.markers.get(truck.id)!.remove(); this.markers.delete(truck.id); }
+        return;
+      }
       const nearby = this.isNearby(truck);
       const color = nearby ? '#e53e3e' : '#2d6a4f';
       const icon = L.divIcon({
@@ -208,7 +214,10 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
       } else {
         const marker = L.marker([truck.lat, truck.lng], { icon })
           .addTo(this.map)
-          .bindPopup(`<b>${truck.plateNumber}</b><br>♻️ ${truck.wasteType}<br>📍 ${truck.route}<br><button onclick="window.__openChat('${truck.id}')" style="margin-top:6px;background:#1565c0;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px">💬 Chat</button>`);
+          .bindPopup(() => {
+            const s = this.getInProgressSchedule(truck.id);
+            return `<b>${truck.plateNumber}</b><br>♻️ ${s?.wasteType || truck.wasteType}<br>📍 ${s?.routeId || truck.route}<br><button onclick="window.__openChat('${truck.id}')" style="margin-top:6px;background:#1565c0;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px">💬 Chat</button>`;
+          });
         this.markers.set(truck.id, marker);
       }
       if (truck.status === 'active') this.drawRoute(truck);
@@ -293,6 +302,7 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   getTruck(truckId: string) { return this.trucks.find(t => t.id === truckId) || null; }
+  getInProgressSchedule(truckId: string) { return this.schedules.find(s => s.truckId === truckId && s.status === 'in-progress'); }
 
   isNearby(truck: Truck): boolean {
     if (truck.lat == null || truck.lng == null) return false;

@@ -212,7 +212,10 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       } else {
         const marker = L.marker([truck.lat, truck.lng], { icon })
           .addTo(this.map)
-          .bindPopup(`<b>${truck.plateNumber}</b><br>${truck.collectorName}<br>♻️ ${truck.wasteType}<br>📍 ${truck.route}`);
+          .bindPopup(() => {
+            const s = this.schedules.find(s => s.truckId === truck.id && s.status === 'in-progress');
+            return `<b>${truck.plateNumber}</b><br>${truck.collectorName}<br>♻️ ${s?.wasteType || truck.wasteType}<br>📍 ${s?.routeId || truck.route}`;
+          });
         this.markers.set(truck.id, marker);
       }
     });
@@ -238,6 +241,10 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   setTab(tab: string) {
     this.activeTab = tab;
     if (tab === 'map') setTimeout(() => this.map?.invalidateSize(), 50);
+  }
+
+  getInProgressSchedule(truckId: string) {
+    return this.schedules.find(s => s.truckId === truckId && s.status === 'in-progress');
   }
 
   focusTruck(truck: Truck) {

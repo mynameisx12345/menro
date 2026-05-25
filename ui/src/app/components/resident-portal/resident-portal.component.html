@@ -66,7 +66,7 @@
       <ng-container *ngFor="let truck of trucks">
         <div *ngIf="truck.status === 'active' && inProgressTruckIds.has(truck.id)"
              class="truck-chip" [class.nearby]="isNearby(truck)">
-        🚛 {{ truck.plateNumber }} · {{ truck.wasteType }} · {{ truck.route }}
+        🚛 {{ truck.plateNumber }} · {{ getInProgressSchedule(truck.id)?.wasteType || truck.wasteType }} · {{ getInProgressSchedule(truck.id)?.routeId || truck.route }}
         <span *ngIf="isNearby(truck)" class="nearby-tag">NEARBY</span>
       </div>
       </ng-container>
@@ -77,8 +77,9 @@
   <div *ngIf="features.residentSchedule && activeTab==='schedule'" class="tab-content">
     <div class="panel">
       <h3>Collection Schedule</h3>
+      <div *ngIf="!activeSchedules.length" class="empty-msg">No scheduled routes at this time.</div>
       <div class="schedule-cards">
-        <div *ngFor="let s of schedules" class="schedule-card">
+        <div *ngFor="let s of activeSchedules" class="schedule-card">
           <div class="schedule-header">
             <span class="route-badge">{{ s.routeId }}</span>
             <span class="status-badge" [class]="s.status">{{ s.status }}</span>
@@ -112,7 +113,7 @@
           <label>Route ID</label>
           <select [(ngModel)]="newComplaint.routeId" name="routeId" required>
             <option value="" disabled selected>Select route</option>
-            <option *ngFor="let s of schedules" [value]="s.routeId">{{ s.routeId }}</option>
+            <option *ngFor="let s of schedulesByDateDesc" [value]="s.routeId">{{ s.routeId }} - {{ s.status }} - {{ s.date }}</option>
           </select>
         </div>
         <div class="form-group">

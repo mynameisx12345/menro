@@ -28,7 +28,7 @@ export interface Schedule {
   date: string;
   timeSlot: string;
   areas: string[];
-  status: 'pending' | 'in-progress' | 'completed';
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
   completedAt?: string;
 }
 
