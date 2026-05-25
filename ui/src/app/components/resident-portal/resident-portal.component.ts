@@ -319,7 +319,7 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
   checkProximity() {
     // Don't check until real coords are resolved
     if (!this.coordsResolved) return;
-    const found = this.trucks.find(t => t.status === 'active' && this.isNearby(t)) || null;
+    const found = this.trucks.find(t => t.status === 'active' && this.inProgressTruckIds.has(t.id) && this.isNearby(t)) || null;
     this.nearbyTruck = found;
     // Reset so re-entry fires again
     if (!found) { this.lastNearbyTruckId = null; return; }
