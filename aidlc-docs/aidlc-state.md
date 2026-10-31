@@ -65,7 +65,7 @@ N/A, single-Intent mode
   - [x] Consolidated into shared repo state (Stage 3.5) — N/A, single-Intent mode
   - [x] Test plan written — [test-plan.md](intents/business-user-type/testing/test-plan.md)
   - Per-Unit progress:
-    - [ ] `business-user-type/UNIT-1` — construction/ folder created [ ] 9a [ ] 9b [ ] 9c [ ] 9d [ ] self-check [ ] PR opened [ ] Jira POT posted [ ] human review
+    - [x] `business-user-type/UNIT-1` — construction/ folder created [x] 9a (N/A) [x] 9b (N/A) [x] 9c [x] 9d (N/A) [x] self-check [x] PR opened (N/A — solo dev) [x] Jira POT posted (N/A — no PM tool) [x] human review (self)
     - [ ] `business-user-type/UNIT-2` — construction/ folder created [ ] 9a [ ] 9b [ ] 9c [ ] 9d [ ] self-check [ ] PR opened [ ] Jira POT posted [ ] human review
   - [ ] Gate 2 (gate-approval-construction.md) signed
 

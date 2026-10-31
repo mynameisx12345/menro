@@ -1,0 +1,69 @@
+UNIT-1 — 9c Manual Verification
+Date: 2026-10-31
+Server: http://localhost:3000 (npm start, migrations up to date)
+
+=== TC-4 (AC1) — Self-register a business user ===
+POST /api/auth/register
+{"name":"Test Biz","email":"testbiz@menro.gov","password":"test123","role":"business","businessName":"Test Business","address":"Test Address"}
+Response:
+{"id":"bac7a08f-b69a-4417-935a-31771987fb18","name":"Test Biz","email":"testbiz@menro.gov","role":"business","address":"Test Address","status":"pending","businessName":"Test Business"}
+Result: PASS — role=business, businessName=Test Business, status=pending
+
+=== TC-5 (AC2) — Business without businessName is rejected ===
+POST /api/auth/register
+{"name":"Test Biz","email":"testbiz2@menro.gov","password":"test123","role":"business"}
+Response:
+{"message":"Business name is required for business"}
+Result: PASS — 400, message names businessName
+
+=== TC-10 (AC3) — Admin creates a business user ===
+POST /api/auth/register (with admin Bearer token)
+{"name":"Admin Biz","email":"adminbiz@menro.gov","password":"test123","role":"business","businessName":"Admin Business","address":"Test Address"}
+Response:
+{"id":"a0390fe1-122c-4537-afe0-13d00a15fdb6","name":"Admin Biz","email":"adminbiz@menro.gov","role":"business","address":"Test Address","status":"approved","businessName":"Admin Business"}
+Result: PASS — role=business, businessName=Admin Business, status=approved
+
+=== TC-11 (AC4) — Resident with businessName is ignored ===
+POST /api/auth/register
+{"name":"Test Res","email":"testres@menro.gov","password":"test123","role":"resident","businessName":"Should Be Ignored","address":"Test Address"}
+Response:
+{"id":"...","name":"Test Res","email":"testres@menro.gov","role":"resident","address":"Test Address","status":"pending","businessName":null}
+Result: PASS — role=resident, businessName=null
+
+=== TC-12 (AC5) — Business login returns role and businessName ===
+POST /api/auth/login
+{"email":"business@menro.gov","password":"business123"}
+Response:
+{"token":"eyJ...","user":{"id":"4","name":"Demo Business Owner","email":"business@menro.gov","role":"business","truckId":null,"address":"Camia Street, Santa Lucia, Pasig","businessName":"Demo Business"}}
+JWT payload decoded: {"id":"4","role":"business","name":"Demo Business Owner","truckId":null,...}
+Result: PASS — JWT role=business, user businessName=Demo Business
+
+=== TC-13 (AC6) — /residents returns both roles ===
+GET /api/auth/residents (with admin Bearer token)
+Response: array of 23 users — 20 with role="resident" (businessName=null) and 3 with role="business":
+  {"id":"4","name":"Demo Business Owner","role":"business","businessName":"Demo Business"}
+  {"id":"bac7a08f-...","name":"Test Biz","role":"business","businessName":"Test Business"}
+  {"id":"a0390fe1-...","name":"Admin Biz","role":"business","businessName":"Admin Business"}
+Result: PASS — both roles returned, each with role and businessName
+
+=== TC-14 (AC7) — Admin updates a user to business ===
+PUT /api/auth/users/2 (with admin Bearer token)
+{"role":"business","businessName":"Converted Business"}
+Response:
+{"id":"2","name":"Juan Dela Cruz Jr","email":"resident@menro.gov","role":"business","businessName":"Converted Business",...}
+Result: PASS — role=business, businessName=Converted Business
+Revert: PUT /api/auth/users/2 {"role":"resident","businessName":null} → role=resident, businessName=null (confirmed)
+
+=== TC-15 (AC8) — Demo business account seeded ===
+Verified via TC-12: business@menro.gov logs in with businessName="Demo Business"
+Result: PASS
+
+=== TC-16 (AC9) — Existing resident unaffected by migration ===
+POST /api/auth/login
+{"email":"resident@menro.gov","password":"resident123"}
+Response:
+{"token":"eyJ...","user":{"id":"2","name":"Juan Dela Cruz Jr","email":"resident@menro.gov","role":"resident","truckId":null,"address":"Clikmoto, 6, Juliana Uno Street, Santa Lucia, Pasig...","businessName":null}}
+Result: PASS — login succeeds, businessName=null
+
+=== Summary ===
+9/9 test cases PASS. All 9 ACs Verified.

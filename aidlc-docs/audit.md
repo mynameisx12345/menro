@@ -91,3 +91,9 @@ Light approval round: 2 Units approved by Architect (Teng). Packets populated.
 
 ## 2026-10-31T00:00:00Z — UNIT-1 Construction started — business-user-type
 Stage 4 entry gate passed (assignment, completeness, test-plan, test-cases). `construction/UNIT-1/` created with `dev-output-check.md` and `questions-log.md`. Implementation begun.
+
+## 2026-10-31T00:00:00Z — UNIT-1 9c verification passed — business-user-type
+9/9 test cases passed (TC-4, TC-5, TC-10, TC-11, TC-12, TC-13, TC-14, TC-15, TC-16). All 9 ACs Verified. Proof saved to `construction/UNIT-1/9c-verification.txt`.
+
+## 2026-10-31T00:00:00Z — UNIT-1 Definition of Done confirmed — business-user-type
+Section 11 self-check complete. Section 12 filled (all ACs Verified, 9a/9b/9d N/A, 9c Verified). Section 14 reviewer notes filled (AC Reconciliation clean, no verification gaps beyond CAP-09). Section 15: no findings. UNIT-1 complete.
