@@ -82,6 +82,8 @@ const seed = db.transaction(() => {
     insert.run('2', 'Juan Dela Cruz','resident@menro.gov',  bcrypt.hashSync('resident123', 8),  'resident');
     db.prepare('UPDATE users SET address=? WHERE id=?').run('Camia Street, Santa Lucia, Pasig Second District, Pasig, Eastern Manila District, Metro Manila, 1608, Philippines', '2');
     insert.run('3', 'Pedro Santos',  'collector@menro.gov', bcrypt.hashSync('collector123', 8), 'collector');
+    insert.run('4', 'Demo Business Owner', 'business@menro.gov', bcrypt.hashSync('business123', 8), 'business');
+    db.prepare('UPDATE users SET address=?, businessName=? WHERE id=?').run('Camia Street, Santa Lucia, Pasig Second District, Pasig, Eastern Manila District, Metro Manila, 1608, Philippines', 'Demo Business', '4');
   }
 
   if (!db.prepare('SELECT 1 FROM trucks LIMIT 1').get()) {
