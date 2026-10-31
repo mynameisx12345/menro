@@ -24,17 +24,31 @@ export class RegisterComponent {
   showPushPrompt = false;
   pushStatus = '';
   registeredEmail = '';
+  isBusiness = false;
   private regMap!: L.Map;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private cdr: ChangeDetectorRef, private http: HttpClient) {
     this.form = this.fb.group({
-      name:     ['', Validators.required],
-      email:    ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-      address:  [''],
-      lat:      [null],
-      lng:      [null]
+      name:         ['', Validators.required],
+      email:        ['', [Validators.required, Validators.email]],
+      password:     ['', Validators.required],
+      address:      [''],
+      lat:          [null],
+      lng:          [null],
+      businessName: ['']
     });
+  }
+
+  setAccountType(isBusiness: boolean) {
+    this.isBusiness = isBusiness;
+    const bn = this.form.get('businessName')!;
+    if (isBusiness) {
+      bn.setValidators(Validators.required);
+    } else {
+      bn.clearValidators();
+      bn.setValue('');
+    }
+    bn.updateValueAndValidity();
   }
 
   toggleRegMap() {
@@ -112,7 +126,8 @@ export class RegisterComponent {
   submit() {
     if (this.form.invalid) return;
     this.error = ''; this.loading = true;
-    const payload = { ...this.form.value, role: 'resident', status: 'pending' };
+    const payload: any = { ...this.form.value, role: this.isBusiness ? 'business' : 'resident', status: 'pending' };
+    if (!this.isBusiness) delete payload.businessName;
     this.auth.register(payload).subscribe({
       next: () => {
         this.loading = false;
