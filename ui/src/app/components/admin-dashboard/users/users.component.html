@@ -35,8 +35,14 @@
             <option value="">Select role</option>
             <option value="admin">Management (Admin)</option>
             <option value="resident">Resident</option>
+            <option value="business">Business</option>
             <option value="collector">Collector</option>
           </select>
+        </div>
+        <div class="form-group" *ngIf="form.value.role === 'business'">
+          <label>Business Name</label>
+          <input type="text" formControlName="businessName" placeholder="Enter business name" data-testid="admin-business-name-input" />
+          <div class="field-error" *ngIf="form.get('businessName')?.invalid && form.get('businessName')?.touched">Business name is required</div>
         </div>
         <div class="form-group" *ngIf="form.value.role === 'collector'">
           <label>Assigned Truck</label>
