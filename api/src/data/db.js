@@ -120,16 +120,9 @@ const seed = db.transaction(() => {
 
 seed();
 
-// Add disabled column if it doesn't exist (migration)
-try { db.exec('ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0'); } catch {}
-try { db.exec('ALTER TABLE users ADD COLUMN deleted INTEGER DEFAULT 0'); } catch {}
-try { db.exec('ALTER TABLE segregation_issues ADD COLUMN status TEXT DEFAULT "open"'); } catch {}
-try { db.exec('ALTER TABLE complaints ADD COLUMN photoUrls TEXT DEFAULT "[]"'); } catch {}
-try { db.exec('ALTER TABLE segregation_issues ADD COLUMN photoUrls TEXT DEFAULT "[]"'); } catch {}
-try { db.exec('ALTER TABLE schedules ADD COLUMN completedAt TEXT'); } catch {}
-try { db.exec('ALTER TABLE users ADD COLUMN lat REAL'); } catch {}
-try { db.exec('ALTER TABLE users ADD COLUMN lng REAL'); } catch {}
-try { db.exec('ALTER TABLE users ADD COLUMN status TEXT DEFAULT "approved"'); } catch {}
+// Run versioned migrations (see api/migrations/*.sql and api/src/data/migrate.js)
+const { runMigrations } = require('./migrate');
+runMigrations(db);
 // Set all existing users to approved
 db.prepare("UPDATE users SET status='approved' WHERE status IS NULL").run();
 

@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "migrate": "node src/data/migrate.js",
+    "migrate:status": "node src/data/migrate.js --status",
     "build:ui": "cd ../ui && npm run build:ngrok",
     "start:ngrok": "cd ../ui && node scripts/bump-version.js && cd ../api && npm run build:ui && node server.js",
     "start:cloudflare": "pkill -f 'node.*server.js' 2>/dev/null; cd ../ui && node scripts/bump-version.js && npm run build:ngrok && cd ../api && cloudflared tunnel run teng-local &>/tmp/cf.log & node server.js"
