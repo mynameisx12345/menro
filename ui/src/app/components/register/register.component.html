@@ -25,7 +25,19 @@
 
     <form *ngIf="!success" [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-group">
-        <label>Full Name</label>
+        <label>Account Type</label>
+        <div class="role-toggle" data-testid="role-toggle">
+          <button type="button" [class.active]="!isBusiness" (click)="setAccountType(false)">Resident</button>
+          <button type="button" [class.active]="isBusiness" (click)="setAccountType(true)">Business</button>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="isBusiness">
+        <label>Business Name</label>
+        <input type="text" formControlName="businessName" placeholder="Enter your business name" data-testid="business-name-input" />
+        <div class="field-error" *ngIf="form.get('businessName')?.invalid && form.get('businessName')?.touched">Business name is required</div>
+      </div>
+      <div class="form-group">
+        <label>{{ isBusiness ? 'Owner Name' : 'Full Name' }}</label>
         <input type="text" formControlName="name" placeholder="Your full name" />
       </div>
       <div class="form-group">
