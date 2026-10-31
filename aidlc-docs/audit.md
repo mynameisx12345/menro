@@ -13,3 +13,12 @@ Per `common/maturity-flags.md`, one line for project-level use of an opt-in feat
 
 ## 2026-10-31T00:00:00Z — Foundation Step 3 answer — (project-level)
 CAP-10 (Review and ship workflow): Solo dev. No PRs, no review gate, no CI. Push directly to `main` (or current branch). Settled by Architect (Teng).
+
+## 2026-10-31T00:00:00Z — Foundation Step 3 answer — (project-level)
+CAP-12 (Team and seats): Solo dev. Architect (Teng) holds every seat — architect, developer, QA, Process Facilitator. No separate QA seat. Settled by Architect (Teng).
+
+## 2026-10-31T00:00:00Z — Foundation Step 3 answer — (project-level)
+CAP-14 (AI-agent permissions and environment separation): No enforced agent limits. The AI does whatever the architect asks. Written only, not enforced. Settled by Architect (Teng).
+
+## 2026-10-31T00:00:00Z — Foundation complete — (project-level)
+All 15 rows have a State. Safety floor: CAP-06 Exposed (risk accepted by Architect Teng, 2026-10-31); CAP-07 Detected; CAP-04 backup Unknown (If unsettled: Resolve before Construction); CAP-13 Detected; CAP-14 Decided. ★ rows 09, 10, 12, 14 all settled. Role map exists. Gate 0 cleared (Draft — acknowledged, not blocking).

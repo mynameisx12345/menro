@@ -168,17 +168,17 @@ Header: **Project shape**: web PWA (Angular 18) + REST API (Express 5) + SQLite 
 - **Why / Who to ask / Known risks**: — / Architect / Failures are invisible unless someone is watching the console
 
 #### CAP-12 ★ Team and seats
-- **Answer**: Unknown — needs architect input.
-- **State**: Unknown
+- **Answer**: Solo dev. Architect (Teng) holds every seat — architect, developer, QA, Process Facilitator. No separate QA seat; no separate Process Facilitator seat.
+- **State**: Decided
 - **Flags**: —
-- **Evidence**: Not verified — no team/seats record found
-- **Rules in force**: none
+- **Evidence**: Verified — Architect (Teng) confirmed 2026-10-31
+- **Rules in force**: Solo-dev — 2026-10-31
 - **Exceptions**: none
-- **Settled by**: — (needs architect input)   **Version/date**: 2026-10-31
-- **If unsettled**: Resolve before Construction
-- **Intent cues**: "team", "role", "seat", "QA", "Process Facilitator"   **Refresh trigger**: a seat changes
-- **Agent Setup role and home**: Team and seats → none yet (Plan: create)   **Plan**: Planned
-- **Why / Who to ask / Known risks**: — / Architect / —
+- **Settled by**: Architect (Teng), 2026-10-31   **Version/date**: 2026-10-31
+- **If unsettled**: Note
+- **Intent cues**: "team", "role", "seat", "QA", "Process Facilitator"   **Refresh trigger**: a second person joins, or a seat is filled
+- **Agent Setup role and home**: Team and seats → none yet (Plan: create)   **Plan**: Exists (solo)
+- **Why / Who to ask / Known risks**: — / Architect / No independent QA review; no independent Process Facilitator retro
 
 #### CAP-13 Destructive-action safety
 - **Answer**: No guardrails. `DELETE` endpoints exist for trucks, schedules, waste-types, users (soft-delete via `deleted=1`). No confirmation at API level (UI has `ConfirmDialogService`).
@@ -194,17 +194,17 @@ Header: **Project shape**: web PWA (Angular 18) + REST API (Express 5) + SQLite 
 - **Why / Who to ask / Known risks**: — / Architect / —
 
 #### CAP-14 ★ AI-agent permissions and environment separation
-- **Answer**: No `.claude/` folder, no `AGENTS.md`, no agent limits recorded. Activation pointer added at `.aider/CONVENTIONS.md` (2026-10-31). Environment separation: `environment.ts` / `environment.network.ts` / `environment.ngrok.ts` — `environment.ngrok.ts` uses `window.location.host` (same-origin), so no real separation of secrets.
-- **State**: Mixed (agent limits Unknown; env separation Detected)
+- **Answer**: No enforced agent limits. The AI does whatever the architect asks — no file, command, or branch is off-limits by rule. Written only, not enforced. Activation pointer added at `.aider/CONVENTIONS.md` (2026-10-31). Environment separation: `environment.ts` / `environment.network.ts` / `environment.ngrok.ts` — `environment.ngrok.ts` uses `window.location.host` (same-origin), so no real separation of secrets.
+- **State**: Decided (agent limits); Detected (env separation)
 - **Flags**: —
-- **Evidence**: Verified — `ui/src/environments/*.ts`, `.aider/CONVENTIONS.md`; agent limits: Not verified — none found
-- **Rules in force**: none
+- **Evidence**: Verified — Architect (Teng) confirmed 2026-10-31; `ui/src/environments/*.ts`, `.aider/CONVENTIONS.md`
+- **Rules in force**: No enforced agent limits — 2026-10-31
 - **Exceptions**: none
-- **Settled by**: — (needs architect input)   **Version/date**: 2026-10-31
-- **If unsettled**: Resolve before Construction
-- **Intent cues**: "agent", "AI", "environment", "secrets"   **Refresh trigger**: an agent-limits file is added
-- **Agent Setup role and home**: Agent limits → `.aider/CONVENTIONS.md` (activation pointer only)   **Plan**: Planned
-- **Why / Who to ask / Known risks**: — / Architect / —
+- **Settled by**: Architect (Teng), 2026-10-31   **Version/date**: 2026-10-31
+- **If unsettled**: Note
+- **Intent cues**: "agent", "AI", "environment", "secrets"   **Refresh trigger**: an agent-limits file is added, or enforcement is introduced
+- **Agent Setup role and home**: Agent limits → `.aider/CONVENTIONS.md` (activation pointer only)   **Plan**: Exists (written only)
+- **Why / Who to ask / Known risks**: — / Architect / No guardrail against an AI action that damages the repo or a live environment
 
 #### CAP-15 Test data and accounts
 - **Answer**: Demo accounts seeded in `db.js`: `admin@menro.gov` / `admin123`, `resident@menro.gov` / `resident123`, `collector@menro.gov` / `collector123`. Seeded trucks, schedules, complaints, segregation issues, waste types. Documented in `README.md`.
@@ -246,5 +246,5 @@ Header: **Project shape**: web PWA (Angular 18) + REST API (Express 5) + SQLite 
 ## 7. Open Conflicts / Known Gaps
 - CAP-06: three Exposed findings open (VAPID, JWT secret, `menro.db` in git).
 - CAP-09: no tests.
-- CAP-12: team and seats unknown.
-- CAP-14: agent limits unknown.
+- CAP-12: solo dev — no independent QA or Process Facilitator seat.
+- CAP-14: no enforced agent limits (written only).
