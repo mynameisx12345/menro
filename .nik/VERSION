@@ -1,0 +1,248 @@
+3.8.0
+
+# .nik Versioning
+
+Semantic Versioning (MAJOR.MINOR.PATCH) — not a 4th build-number segment. Every change
+to any file under `.nik/` bumps exactly one segment, per this rule:
+
+- **MAJOR** — a breaking/structural change: retiring or renaming an artifact that
+  existing Units/Intents already reference, moving ownership of a mechanism from one
+  role to another (e.g. QA → Unit Runner for test-case generation), changing the folder
+  structure, changing what an existing file's trigger/contents mean. A project bootstrapped
+  under an older MAJOR version may need its existing `aidlc-docs/` content re-read against
+  the new rules, not just picked up as-is.
+- **MINOR** — new, backward-compatible capability: a new rule file, a new check added
+  to an existing stage, a new field on an existing template (e.g. Section 0's Repo
+  field). Units built before the bump still work; they just don't benefit from the
+  addition.
+- **PATCH** — a correction with no behavior change: fixing a stale cross-reference, a
+  dangling citation to something that doesn't exist, a wrong file path, a typo in an
+  instruction. The *intended* behavior doesn't change, only the text describing it
+  becomes accurate again.
+
+**Where this number lives**: this file is the single canonical source — don't hand-edit
+a version number anywhere else. `steering/core-workflow.md`'s own header references this
+file rather than restating the number. Each project's `PROJECT-RULES.md` records which
+version was in use as of Bootstrap/last refresh, so a Unit built under an older version
+can be traced back to exactly what the framework looked like when it was built.
+
+**When to bump**: at the end of a working session (or a coherent batch of related
+changes), not per individual file edit — look at everything changed since the last bump
+and pick the highest-severity category that applies (one MAJOR-worthy change in a batch
+of otherwise-MINOR ones still means a MAJOR bump, not an average).
+
+## History
+- **3.8.0** — (Draft) Server test script, opt-in per project. In a project whose `PROJECT-RULES.md` §1 has
+  `- **Server test script**: opted in (Draft), <date>`, a Unit that adds work running on a server outside a
+  request (a scheduled job, a command or script, a go-live backfill, a per-server setting) writes
+  `construction/UNIT-n/server-test-script.md` at 9c, for whoever has server access on each environment.
+  Prompted by two Units that added scheduled jobs: their testers had browser access only, so each job's failure
+  path, retry limit and schedule could not be checked on the first environment, and a script had to be written
+  after the Unit shipped. New rule file
+  `construction/server-test-script.md` (how to turn it on, the per-Intent `audit.md` use line, what the script
+  holds, where it lives (home repo), one home for results (a ticket comment per environment), running it is not
+  a gate); evidence file `evidence/server-test-script.md` with success criteria written before any run. Opt-in
+  pointers in `construction/unit-template.md` (Sections 7c, 9c, 11, 12, 13; at the gates recorded and
+  acknowledged, never blocking), `steering/core-workflow.md` (folder tree, Welcome Message notice),
+  `intake/bootstrap-protocol.md` (Step 6b notice, Step 7 optional row), `end-to-end-checklist.md`,
+  `common/session-continuity.md` (resume check), `intake/project-rules-template.md` (§1 opt-in line), the
+  glossary, the kit (9c) and the README Status table.
+  MINOR: opt-in, and a project without the line is read exactly as under 3.7.0.
+- **3.7.0** — The Jira POT ends with links to the Unit's 9c screenshots, so nobody attaches them to the ticket by
+  hand (prompted by hr-iris-core PR #737, where they were attached manually). One link per `9c-verification*` file,
+  by commit SHA (a branch link breaks after merge), written as a bare URL (renders as a link in both Jira wiki
+  markup and markdown), pushed before the POT is posted and never rewritten after, pointing at the home repo (a
+  mobile Unit's proof is committed there on its own branch); links only, no image uploaded to Jira; left out when 9c
+  is N/A. Section 13's ship-skill line now says the skill only checks a POT exists and the Unit Runner writes it.
+  Readers without GitHub access (POs) get a screenshot on request; images are never attached by default.
+  New Section 13 checklist line in `construction/unit-template.md`, echoed in `steering/core-workflow.md` Stage 4 step 7, `end-to-end-checklist.md`,
+  the glossary's POT entry and the kit. MINOR: a new check on an existing stage, part of the POT rule already in
+  force (no opt-in). Applies from a Unit's next Section 13.
+- **3.6.0** — (Draft) Foundation, corrected after its first test run on a real project (hr-iris-core, read-only; see
+  `evidence/foundation.md` entry 2). Additions to the Foundation files only: an **Exposed** flag and a stop-and-tell
+  rule for a credential found in version control (`foundation-protocol.md` Step 1, `capability-register.md`); a **Mixed**
+  row state with one line per part; a rule for how to put a row to the architect and for an answer that is not an
+  answer (Step 3); a delegation note (AI-proposed answers, safety-floor rows stay open); risk acceptors by full name and
+  role, read back at Step 4; which branches and read-only outside sources to read, and read named documents in full
+  (Step 1); document-vs-document and code-vs-code disagreements and reversals with a cross-row check
+  (`foundation-reconcile.md`); multiple homes per role and a home outside the repo (role map); row 14's two parts are
+  both safety floor; reconcile may add rows by judgment and shows "Covered, row open"; the "ask for Foundation by name"
+  rule is its own step 3b in the loading order; how to look for a secret without printing it; use only the access
+  already available. MINOR: every addition sits inside the opt-in Foundation files, so a
+  project without a Foundation line is read exactly as under 3.5.0. Still Draft: 6 of 15 rows were answered live, 9 were
+  simulated, and one success criterion was not met. Next minor numbers for the greenfield and portability work move
+  to later versions.
+- **3.5.0** — (Draft) Foundation: a written, checked record of project-level facts, opt-in per project.
+  New files: `intake/capability-register.md` (15-row register extending `PROJECT-RULES.md` §1 as §1a, row
+  fields and states, safety floor, depth levels, role map), `intake/foundation-protocol.md` (Stage 0 part 2:
+  AI pre-fill from evidence, architect-led session, capture on answer, closing question, widened Gate 0,
+  new-manager test), `intake/foundation-reconcile.md` (reconcile at Intent load, setup conflicts with four
+  outcomes, answer-against-code outcomes, Unit-close register step) and `common/maturity-flags.md` (Draft /
+  Tested / Proven and where the level is shown). New checks: `similarity-consistency-checklist.md` item 8,
+  a Gate 1 line, a pre-elaboration line, a Section 13 closing action, a Welcome Message notice (no question) and an optional
+  Foundation row in `PROJECT-RULES.md` §1. Rule text that named `CLAUDE.md` / `DECISIONS.md` / `AGENTS.md` /
+  `conventions.md` now names the role (architecture, conventions, standing rules, agent limits), found by
+  content; the file names remain only as examples. MINOR: every new field and check is opt-in, and a
+  project with no Foundation line in `PROJECT-RULES.md` §1 is read exactly as under 3.4.0 (the new Section 13,
+  Gate 1 and pre-elaboration lines are included only when that opt-in line exists). Applies from a Unit's next entry gate. Draft means written
+  and reviewed but not yet run on a real project; the dry run behind it was read-only, on hr-iris-core.
+  Not in this version (planned): Foundation for a project with no code (stack interview, ideation, AI-led
+  mode), tool-specific generation and wiring checks, loading modes.
+- **3.4.0** — One fixed vocabulary for results, one rule on partly built ACs, and three test-quality checks.
+  `construction/unit-template.md` Section 12: every AC and 9a-9d Result is **Verified**, **Not verified — reason** or
+  **N/A — reason** (an AC row may also be **Partial** or **Missing**), so a vague "done" can't read as a
+  pass; **a partly built AC is Partial, never Verified**, and deferring the rest needs a `deferred-work.md`
+  entry. Matching one-line updates in Section 11, Section 14 (a row with no result word, or Verified without
+  evidence, is a finding), the glossary (new entry), `core-workflow.md` Stage 4 step 6, `end-to-end-checklist.md`,
+  `session-continuity.md` (N/A counts as done, Not verified doesn't) and the kit. No gate changes: 9c's hard
+  gate, the 9d trigger and the exit gate work as before. Section 11's AC box now matches how reviews already
+  run: Verified, or Partial / Not verified with its reason carried to Section 14 for the reviewer to accept or
+  reject (a Missing AC still leaves it unticked). Test-quality additions, all from the 10-16 1-shot
+  feedback entries and the negative-case review: (a) `qa-test-case-generation.md` — each test case has a **Kind**
+  (Positive / Negative / Edge) and each AC has at least one Negative case or a stated reason, checked in Section
+  14's Test Coverage Reconciliation; (b) Section 9c — a number or status the Unit shows that another screen
+  also shows is compared for the same record; (c) Section 9b — when an AC depends on how an external system
+  represents a state change, one real read of that record comes first and the stub is built from it. MINOR, not MAJOR: a Unit whose Section 12 predates
+  3.4.0 keeps its wording ("met" = Verified; "not needed" / "not applicable" = N/A; an empty Result reads as
+  Not verified; test cases without a Kind read as unlabelled); the words, Kind and the two checks are expected for Units whose entry gate runs after the bump.
+- **3.3.0** — Mobile UI automation wired into Section 9d the same way web automation is.
+  `hr-iris-android` and `hr-iris-ios` now ship a generator (`/ui-automation`), a runner
+  (`/smoke-test`) and a shared `test-accounts` contract, so `unit-template.md` 9d Branch 2
+  stops being "check the repo's tooling, else flag manual" and becomes concrete: invoke
+  that repo's `/ui-automation` once per generated test case (module + a description from
+  the case, exactly like Branch 1), smoke-tag happy paths (`@SmokeTest` / `SmokeTestPlan`),
+  then run that repo's `/smoke-test`. A local-backend run (Android `local` flavor, iOS
+  `BASE_URL` override + typed test accounts) is the pre-PR gate and the Unit closes on
+  it; the DEV run is a separate proof the Unit Runner adds after merge and deploy (a dated
+  "9d DEV run" line in `dev-output-check.md` plus a follow-up Jira POT comment), never
+  keeping the Unit open. Mobile Units work from the repo's integration branch
+  (`release/development` / `develop`), never `main`, where the mobile skills don't exist. The manual-testing Jira flag now covers
+  only steps automation can't drive (Face ID, camera capture, OS dialogs) or a mobile repo
+  with genuinely no generator. One mobile Unit per platform, its Jira title naming it
+  (`[Android]` / `[iOS]`). `qa-test-case-generation.md` gains a **Mobile automation**
+  value for the Automation field and types undrivable steps Manual at Stage 3. Matching
+  updates in `end-to-end-checklist.md`, `core-workflow.md` (Stage 4 step 5; the "Mobile
+  test-automation scaffolding skill" Known Gap closed), the Gate 2 template,
+  `session-continuity.md` (mobile test-file locations), `glossary.md` (POT),
+  `qa-testing-protocol.md` (mobile rows in the traceability example),
+  `multi-repo-units.md`, Section 6's stable selectors (`testTag` /
+  `accessibilityIdentifier`), README Status and `NOVARE-INTENT-KIT.md`. The Bootstrap
+  generator-detection gap is deliberately left open. MINOR, not MAJOR: one new field value
+  and a concrete path where the old branch said "use the repo's own convention" — nothing
+  retired, renamed or moved between roles; a Unit built under 3.2.0 still works, its
+  mobile 9d just stays a manual flag.
+- **3.2.0** — Resume logic hardened and the packet/output split made consistent.
+  (1) `common/session-continuity.md`: a resumed Construction session reads
+  `aidlc-state.md`'s per-Unit 9a-9d checkboxes as a hint first, then confirms against the
+  real artifacts — the artifacts win on disagreement. A 9b/9c/9d outcome recorded as not
+  needed / N/A in `dev-output-check.md` now counts as done (it legitimately leaves no
+  file). Still no running tests just to decide where to resume. (2) 9c proof is now any
+  `construction/UNIT-n/9c-verification*` file — teams already save several per Unit.
+  Staleness uses git commit times, not file modification times (a clone/checkout resets
+  those); uncommitted Section 3 edits count as newer than a committed proof; an
+  uncommitted proof is compared by its modification time against the code's latest
+  commit time, so a fix committed after the proof was saved still marks it stale; when
+  both the proof and the Section 3 files are uncommitted (the usual case right after
+  9c), file modification times are compared instead; for a multi-repo Unit, the comparison runs against the Unit's own repo
+  (`common/multi-repo-units.md`). The proof is now a Section 11 Definition of Done item,
+  listed in Section 12, and in `end-to-end-checklist.md`. (3) Sections 11-15 are filled
+  in `construction/UNIT-n/dev-output-check.md`, never `unit.md`, which stays read-only;
+  Section 4's migration-query record moves there too, and Section 15's packet fix now
+  cites the STOP-and-ask exception that already allows editing `unit.md`. (4) New
+  `unit-template.md` Section 0 **Risk level** field, so Section 13's ship-skill
+  recommendation has a source inside the packet; a pre-3.2.0 packet without it falls back
+  to `requirements.md`'s risk level, or to the full `/ship-ticket` if that isn't at hand.
+  (5) `PROJECT-RULES.md` template gains
+  the **NIK version** and **Activation pointer** rows Bootstrap Step 7 already writes.
+  MINOR, not MAJOR: nothing is retired, renamed or moved between roles. Moving Sections
+  11-15 into `dev-output-check.md` changes no file's meaning — Stage 4 Step 0 already said
+  `dev-output-check.md` is "filled in fully later at Section 12", and real Units on
+  hr-iris-core's `origin/dev` already fill it there. A Unit built before this still works
+  and still resumes; it just lacks the new Risk field and may carry Section 12 in
+  `unit.md` too.
+- **3.1.1** — Consistency pass after a full review of every `.nik/` file against 3.1.0:
+  text left stale by earlier bumps, dangling references, and three definitions that had
+  drifted between files. PATCH: every fix makes a file say what the framework already
+  intended elsewhere; no stage, gate, artifact or ownership changes. Corrected: the
+  glossary's entry gate ("two checks" → four, per 3.0.0) and its Gate 2 mention of the
+  retired QA quality-gate signoff; the "not yet added"/"once added" Test Coverage
+  Reconciliation wording (it exists in `unit-template.md` Section 14);
+  `unit-consolidation.md` missing the test-cases check Stage 3.5 already required; the
+  Gate 1 template's "What happens next" (Construction also waits on Stage 3's round,
+  Stage 3.5 and Stage 4's entry checks) and its checklist missing the UI Summary
+  Package `ux-review-protocol.md` Step 5 already gates on; "Bolt" wording aligned to the
+  glossary's one-Unit definition, with Bolt Retro's cadence unchanged (once per Intent,
+  across that Intent's Bolts, as its Intent-scoped save path already implied); the ADR fallback aligned to `PROJECT-RULES.md`
+  §3's Binds/Prevents/Rule (`elaboration-protocol.md` now defers to `adr-protocol.md`);
+  migration-safety wording made generic ("each database the migration will run
+  against"); dangling refs (`intent-intake-question-flow.md`, `1-shot-feedback.md`,
+  `examples/`, a nonexistent "Section 0" ADR rule, Parked → Section 8b); the missing
+  `multi-repo-units.md` in the Loading Order; README/KIT paths and counts; a Known Gaps
+  entry for Bootstrap not asking about QA staffing; the Gate 1 UI Summary Package's save
+  location, which no file named (`inception/ui-summary-package.html`); a Known Gaps note
+  for the cosmetic question-file heading levels; plus small wording and typo fixes.
+- **3.1.0** — Construction resume-point derivation. Real gap found by actually trying to
+  resume mid-build: `dev-output-check.md`/`questions-log.md` only prove a Unit's build
+  *started*, not where it stands — both can sit static for the entire build, and
+  `session-continuity.md`'s own resume example ("resuming at Section 9c") presumed
+  information nothing in the framework actually tracked. Fixed by deriving the resume
+  point from real artifacts instead of a self-reported status: diff Section 3's files
+  for implementation progress, check 9a/9b/9d test/automation files for existence
+  (validating them is the resumed work's own first action, not a precondition for
+  resuming), and for 9c specifically — which has no natural file trace — a saved
+  verification-proof artifact (screenshot/output capture) with a staleness check against
+  the Unit's latest file changes. MINOR: new derivation logic plus one new field on an
+  existing template (9c's proof artifact); nothing retired or renamed, and a Unit built
+  before this still resumes fine, just without the derived-resume-point convenience.
+- **3.0.1** — Fixed `gate-approval-inception-template.md`'s checklist: it wrongly listed
+  "Unit split reviewed" as something Gate 1 approves, which can't be true — Units don't
+  exist yet at Gate 1 (Stage 3/Unit Separation runs *after* it, triggered by it), per
+  `elaboration-protocol.md`'s own Definition of Ready ("once cleared, decompose into
+  Units") and `core-workflow.md`'s stage order, both already consistent. The Unit split
+  gets reviewed in Stage 3's own traceability check instead. PATCH: the framework's
+  intended behavior was already consistent elsewhere; only this one artifact's wrong
+  claim needed correcting. `NOVARE-INTENT-KIT.md` reordered to match (Gate 1 before Unit
+  Separation, not after).
+- **3.0.0** — Test Case Generation moved from mid-Construction (Unit Runner, inside
+  Section 9d) to once-per-Intent, at the end of Stage 3/Unit Separation (whoever ran that
+  round, covering every Unit in one pass). MAJOR because it moves ownership of a
+  mechanism from one role/stage to another — the same category as the original QA →
+  Unit Runner move already in this history. Prompted by a real incident
+  (leave-approval/UNIT-1 shipped with no `testing/` folder at all — the only trigger for
+  generating test cases lived inside Section 9d, easy to reach without ever running).
+  `qa-test-case-generation.md` moved from `construction/` to `inception/` to match;
+  output location unchanged (`testing/test-cases.md` + `testing/test-case-details/`).
+  Stage 4's Entry Gate gained a 4th check (test-cases), Stage 3.5's Exit gained a
+  matching consolidation check, and `unit-template.md` Section 9d now reads already-
+  generated test cases instead of generating them, with Mid-Workflow-Change Units falling
+  back to the old per-Unit generation as the one remaining exception.
+- **2.0.0** — UX Governance ruleset, requested by UX and reviewed/scoped before
+  implementation. MAJOR because it changes what `inception/ux-review-protocol.md`'s
+  existing Step 3 output requirement means (a described layout was previously an
+  acceptable deliverable; it no longer is) and tightens Gate 1's sign-off requirement
+  for UI-facing Intents. Adds: a per-Intent Greenfield/Brownfield kickoff check (Step 0,
+  distinct from Bootstrap's one-time project-wide detection); a mandatory self-contained
+  interactive `.html` prototype (device-shell wrapped for mobile) as the only acceptable
+  format whenever new design is actually needed — no images/wireframes/text, but also no
+  prototype at all for a clean direct reuse or low-risk delta, that determination
+  unchanged from the prior Step 1/3 trigger logic; domain-grounded pattern suggestions
+  for a new interaction flow (2-5, scaled to the decision's materiality, not a fixed
+  count); Pattern Source attribution on every prototype, not just risky fallbacks; and a
+  Gate 1 UI Summary Package (Step 5) that closes a previously parked idea — see this
+  file's own now-closed entry in `steering/core-workflow.md`'s "Known Gaps."
+- **1.1.0** — new `construction/migration-safety-protocol.md`, grounded in a real
+  incident (hr-iris-core HRIS-1588, migration 0126): a Unit's data-dependent migration
+  backfill must be checked against the real target database *before* merge, not
+  discovered live in CI after — and on a non-transactional-DDL database (MySQL
+  confirmed), schema-only operations must be split into a separate migration from the
+  risky data-validation step, so a failed validation never leaves orphaned schema
+  changes behind. Wired into `unit-template.md` Section 4 (Data / Model Impact) and
+  Section 11 (Definition of Done), plus a new glossary entry.
+- **1.0.0** — first version-tracked snapshot. Baseline includes (not an exhaustive
+  changelog of everything that predates this file, just what's fresh enough to matter):
+  multi-repo Unit tagging (`common/multi-repo-units.md`), the ADR protocol wired to
+  `.claude/DECISIONS.md`-style project files, test-case generation moved to the Unit
+  Runner (`construction/qa-test-case-generation.md`), Section 14's Test Coverage
+  Reconciliation, `quality-gate-signoffs` retired, Stage 4's Entry Gate gaining a
+  test-plan check, and the Stage 4/9d/end-to-end-checklist mobile-automation claims
+  corrected.
