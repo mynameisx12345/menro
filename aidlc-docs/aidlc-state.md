@@ -13,14 +13,14 @@
 - **CI/CD**: none found (no `.github/workflows/`, no `.gitlab-ci.yml`, no `Jenkinsfile`). Deploy is manual via `npm run start:ngrok` / `npm run start:cloudflare`.
 - **Unit size signal**: 3 (default, unconfirmed by team)
 - **Workspace**: brownfield, monorepo — `api/` (Node 18+, Express 5, better-sqlite3, ws, web-push) + `ui/` (Angular 18, TypeScript, Leaflet, Capacitor). Build: npm + Angular CLI.
-- **Foundation**: opted in (Draft), 2026-10-31 — depth `standard`; §1a Capability Register holds the detail. Status: **complete** (2026-10-31).
+- **Foundation**: opted in (Draft), 2026-10-31 — depth `standard`; §1a Capability Register holds the detail. Status: **complete** (2026-10-31). Gate 0 cleared 2026-10-31.
 - **Server test script**: not opted in.
 
 ## Intent Queue
 N/A, single-Intent mode
 
 ## Intents in Flight
-None yet.
+None yet. Stage 0 (Bootstrap) and Foundation complete; Gate 0 cleared 2026-10-31. Ready for Stage 1 (Pre-Elaboration) once a real Intent is given.
 
 ## Extension Configuration
 [Reserved — none defined.]
