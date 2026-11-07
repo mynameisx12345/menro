@@ -108,7 +108,7 @@
       </select>
     </div>
     <div class="page-info">
-      {{ filtered.length ? (page-1)*pageSize+1 : 0 }}–{{ page*pageSize > filtered.length ? filtered.length : page*pageSize }} of {{ filtered.length }}
+      {{ filtered.length ? (page-1)*pageSize+1 : 0 }}-{{ page*pageSize > filtered.length ? filtered.length : page*pageSize }} of {{ filtered.length }}
     </div>
     <div class="page-nav">
       <button (click)="page=1" [disabled]="page===1">«</button>
