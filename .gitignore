@@ -1,2 +1,6 @@
 .aider*
 .nik-bundle.md
+
+# Local database (contains PII and password hashes)
+api/menro.db
+api/menro.db.bak-*
