@@ -27,6 +27,8 @@ Confirm the business icon should appear in: admin dashboard live map, collector 
 
 **[Answer]:** Admin dashboard live map and collector app map. Resident portal home marker stays a house (business users see their own home as a house, same as residents).
 
+**[Reversal — 2026-10-31, during UNIT-2 9c]:** The resident portal home marker **does** change for business users. A business user sees a business icon for their own home, not a house. Reason: the PO wants a business user to be visually distinct from a resident everywhere, including their own portal. The admin/collector maps keep the pin shape (same as residents) but swap the glyph to the business one; the resident portal uses an emoji-style marker (not a pin), so it swaps the house emoji for a business emoji.
+
 ### Q6 [Gap] — Permissions
 Can a business user file complaints, view schedules, chat with collectors, receive push notifications — same as resident?
 

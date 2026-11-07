@@ -172,11 +172,14 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
     this.map.once('load', () => this.mapLoading = false);
     setTimeout(() => { this.map?.invalidateSize(); this.mapLoading = false; }, 500); // fallback
 
-    // Home marker
-    const homeIcon = L.divIcon({ html: '<div style="font-size:32px;line-height:1">🏠</div>', className: 'leaflet-div-icon-clean', iconAnchor: [16, 16] });
+    // Home marker — business users see a storefront, residents see a house
+    const isBusiness = this.user?.role === 'business';
+    const homeEmoji = isBusiness ? '🏪' : '🏠';
+    const homeLabel = isBusiness ? 'Your Business' : 'Your Home';
+    const homeIcon = L.divIcon({ html: `<div style="font-size:32px;line-height:1">${homeEmoji}</div>`, className: 'leaflet-div-icon-clean', iconAnchor: [16, 16] });
     this.homeMarker = L.marker(this.homeCoords, { icon: homeIcon })
       .addTo(this.map)
-      .bindPopup('<b>Your Home</b>');
+      .bindPopup(`<b>${homeLabel}</b>`);
 
     // 1km radius circle (FR-4)
     L.circle(this.homeCoords, { radius: 1000, color: '#2d6a4f', fillOpacity: 0.05, dashArray: '5,5' }).addTo(this.map);

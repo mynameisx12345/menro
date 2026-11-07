@@ -37,12 +37,13 @@ Add a new user type, **Business Owner**, functionally identical to Resident but 
 
 **Confidence:** High
 
-### FR-5 — Map icon (admin + collector)
+### FR-5 — Map icon (admin + collector + resident portal)
 - Business users appear on the admin dashboard live map and collector app map with a distinct business icon (not the resident house pin).
 - Icon is inline SVG or emoji, matching the existing `L.divIcon` pattern.
-- Resident icon unchanged.
+- **Resident portal:** a business user's own home marker is a business icon (storefront emoji), not a house emoji.
+- Resident icon unchanged (house pin on maps, house emoji in portal).
 
-**Confidence:** High (icon design pending UX prototype — see `ux-review.md`)
+**Confidence:** High (icon design approved at Gate 1; glyph corrected during UNIT-2 9c — see `elaboration-questions.md` Q5 reversal)
 
 ### FR-6 — Map popup
 - Business popup shows only the business name: `<b>${businessName}</b>`.

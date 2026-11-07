@@ -97,3 +97,6 @@ Stage 4 entry gate passed (assignment, completeness, test-plan, test-cases). `co
 
 ## 2026-10-31T00:00:00Z — UNIT-1 Definition of Done confirmed — business-user-type
 Section 11 self-check complete. Section 12 filled (all ACs Verified, 9a/9b/9d N/A, 9c Verified). Section 14 reviewer notes filled (AC Reconciliation clean, no verification gaps beyond CAP-09). Section 15: no findings. UNIT-1 complete.
+
+## 2026-10-31T00:00:00Z — Mid-Workflow Change (Moderate) — business-user-type
+Trigger: UNIT-2 9c found two issues. (1) The business pin glyph read as a house at 16×16 — the storefront path was too flat. (2) The business user's own home marker in the resident portal was still a house, contradicting the PO's intent that a business user be visually distinct everywhere. Change: (a) business pin glyph replaced with a storefront-with-awning (three vertical stripes over a door); (b) resident portal home marker picks icon by `user.role` — business users see a storefront emoji, residents see a house emoji. Scope: Moderate — affects UNIT-2's scope (one more file, two more ACs), not the Intent's overall scope. Approved by Architect (Teng). `elaboration-questions.md` Q5 updated with the reversal; `requirements.md` FR-5 updated; `unit.md` UNIT-2 ACs 13-14 added, Section 3 file list updated.
