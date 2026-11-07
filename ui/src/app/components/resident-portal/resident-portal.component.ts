@@ -12,6 +12,7 @@ import { PushService } from '../../services/push.service';
 import { NotificationService, ResidentNotification } from '../../services/notification.service';
 import { Truck, Schedule, Complaint, WasteType } from '../../models/models';
 import { Subscription } from 'rxjs';
+import { PasswordChecklistComponent } from '../../shared/password-checklist/password-checklist.component';
 
 const RESIDENT_HOME_DEFAULT: [number, number] = [14.6005, 120.9855];
 const ALERT_DISTANCE_KM = 1;
@@ -19,7 +20,7 @@ const ALERT_DISTANCE_KM = 1;
 @Component({
   selector: 'app-resident-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PasswordChecklistComponent],
   templateUrl: './resident-portal.component.html',
   styleUrls: ['./resident-portal.component.scss']
 })
@@ -529,8 +530,18 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
     }, 50);
   }
 
+  get profilePasswordValue(): string {
+    return this.profileForm?.get('password')?.value || '';
+  }
+
+  get profilePasswordValid(): boolean {
+    const pw = this.profilePasswordValue;
+    if (!pw) return true; // blank = keep current password
+    return pw.length >= 8 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+  }
+
   saveProfile() {
-    if (this.profileForm.invalid) return;
+    if (this.profileForm.invalid || !this.profilePasswordValid) return;
     this.profileError = ''; this.profileSuccess = ''; this.profileLoading = true;
     const payload: any = { ...this.profileForm.value };
     if (!payload.password) delete payload.password;

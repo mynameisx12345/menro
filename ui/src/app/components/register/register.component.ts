@@ -8,11 +8,12 @@ import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { HttpClientModule } from '@angular/common/http';
+import { PasswordChecklistComponent } from '../../shared/password-checklist/password-checklist.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, PasswordChecklistComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
@@ -49,6 +50,15 @@ export class RegisterComponent {
       bn.setValue('');
     }
     bn.updateValueAndValidity();
+  }
+
+  get passwordValue(): string {
+    return this.form.get('password')?.value || '';
+  }
+
+  get passwordValid(): boolean {
+    const pw = this.passwordValue;
+    return pw.length >= 8 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
   }
 
   toggleRegMap() {
@@ -124,7 +134,7 @@ export class RegisterComponent {
   }
 
   submit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid || !this.passwordValid) return;
     this.error = ''; this.loading = true;
     const payload: any = { ...this.form.value, role: this.isBusiness ? 'business' : 'resident', status: 'pending' };
     if (!this.isBusiness) delete payload.businessName;

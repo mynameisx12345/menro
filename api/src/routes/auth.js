@@ -5,6 +5,21 @@ const bcrypt = require('bcryptjs');
 const { db, uuidv4 } = require('../data/db');
 const { SECRET, authenticate } = require('../middleware/auth');
 
+const PASSWORD_RULES = [
+  { test: pw => pw.length >= 8,        message: 'Password must be at least 8 characters' },
+  { test: pw => /[A-Z]/.test(pw),      message: 'Password must contain an uppercase letter' },
+  { test: pw => /[a-z]/.test(pw),      message: 'Password must contain a lowercase letter' },
+  { test: pw => /[0-9]/.test(pw),      message: 'Password must contain a number' },
+  { test: pw => /[^A-Za-z0-9]/.test(pw), message: 'Password must contain a special character' }
+];
+
+function validatePassword(pw) {
+  for (const rule of PASSWORD_RULES) {
+    if (!rule.test(pw)) return rule.message;
+  }
+  return null;
+}
+
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
@@ -29,6 +44,10 @@ router.put('/me', authenticate, (req, res) => {
   const existing = db.prepare('SELECT * FROM users WHERE id=?').get(req.user.id);
   if (!existing) return res.status(404).json({ message: 'User not found' });
   const { name, email, password, address, lat, lng, businessName } = req.body;
+  if (password) {
+    const pwErr = validatePassword(password);
+    if (pwErr) return res.status(400).json({ message: pwErr });
+  }
   const hashed = password ? bcrypt.hashSync(password, 8) : existing.password;
   const finalBusinessName = existing.role === 'business' ? (businessName ?? existing.businessName) : null;
   db.prepare('UPDATE users SET name=?,email=?,password=?,address=?,lat=?,lng=?,businessName=? WHERE id=?')
@@ -56,6 +75,8 @@ router.post('/register', (req, res) => {
   if (role === 'collector' && !truckId) return res.status(400).json({ message: 'Truck is required for collector' });
   if (role === 'resident' && !address) return res.status(400).json({ message: 'Address is required for resident' });
   if (role === 'business' && !businessName) return res.status(400).json({ message: 'Business name is required for business' });
+  const pwErr = validatePassword(password);
+  if (pwErr) return res.status(400).json({ message: pwErr });
   if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) return res.status(409).json({ message: 'Email already exists' });
 
   const id = uuidv4();
@@ -82,6 +103,10 @@ router.put('/users/:id', authenticate, (req, res) => {
   const existing = db.prepare('SELECT * FROM users WHERE id=?').get(req.params.id);
   if (!existing) return res.status(404).json({ message: 'User not found' });
   const { name, email, role, truckId, address, password, disabled, lat, lng, status, businessName } = { ...existing, ...req.body };
+  if (password && !password.startsWith('$2')) {
+    const pwErr = validatePassword(password);
+    if (pwErr) return res.status(400).json({ message: pwErr });
+  }
   const hashed = password && !password.startsWith('$2') ? bcrypt.hashSync(password, 8) : existing.password;
   const finalBusinessName = role === 'business' ? (businessName || null) : null;
   db.prepare('UPDATE users SET name=?,email=?,role=?,truckId=?,address=?,password=?,disabled=?,lat=?,lng=?,status=?,businessName=? WHERE id=?')

@@ -7,11 +7,12 @@ import { AuthService } from '../../../services/auth.service';
 import { ConfirmDialogService } from '../../../shared/confirm-dialog/confirm-dialog.service';
 import { sortData } from '../../../shared/sort.util';
 import { Truck } from '../../../models/models';
+import { PasswordChecklistComponent } from '../../../shared/password-checklist/password-checklist.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PasswordChecklistComponent],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
 })
@@ -126,6 +127,16 @@ export class UsersComponent implements OnInit {
     return t ? `${t.plateNumber} — ${t.route}` : '—';
   }
 
+  get passwordValue(): string {
+    return this.form.get('password')?.value || '';
+  }
+
+  get passwordValid(): boolean {
+    const pw = this.passwordValue;
+    if (!pw) return !!this.editingUser; // blank = keep current password when editing
+    return pw.length >= 8 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+  }
+
   approveUser(u: any) {
     this.auth.updateUser(u.id, { status: 'approved' }).subscribe(() => {
       u.status = 'approved';
@@ -139,7 +150,7 @@ export class UsersComponent implements OnInit {
   }
 
   save() {
-    if (this.form.invalid) return;
+    if (this.form.invalid || !this.passwordValid) return;
     this.error = ''; this.success = ''; this.loading = true;
     const payload: any = { ...this.form.value, disabled: this.form.value.isDisabled };
     delete payload.isDisabled;
