@@ -174,7 +174,7 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
 
     // Home marker — business users see a storefront, residents see a house
     const isBusiness = this.user?.role === 'business';
-    const homeEmoji = isBusiness ? '🏪' : '🏠';
+    const homeEmoji = isBusiness ? '🏢' : '🏠';
     const homeLabel = isBusiness ? 'Your Business' : 'Your Home';
     const homeIcon = L.divIcon({ html: `<div style="font-size:32px;line-height:1">${homeEmoji}</div>`, className: 'leaflet-div-icon-clean', iconAnchor: [16, 16] });
     this.homeMarker = L.marker(this.homeCoords, { icon: homeIcon })
