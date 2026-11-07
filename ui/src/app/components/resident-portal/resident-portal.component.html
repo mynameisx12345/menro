@@ -175,6 +175,11 @@
         <label>Full Name</label>
         <input type="text" formControlName="name" placeholder="Full name" />
       </div>
+      <div class="form-group" *ngIf="user?.role === 'business'">
+        <label>Business Name</label>
+        <input type="text" formControlName="businessName" placeholder="Enter business name" />
+        <div class="field-error" *ngIf="profileForm.get('businessName')?.invalid && profileForm.get('businessName')?.touched">Business name is required</div>
+      </div>
       <div class="form-group">
         <label>Email</label>
         <input type="email" formControlName="email" placeholder="Email address" />
