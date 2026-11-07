@@ -12,6 +12,8 @@
 .form-actions { display:flex; gap:0.5rem; margin-top:1.25rem; }
 
 .reg-error { color:#e53e3e; font-size:0.85rem; margin-top:0.75rem; }
+.field-error { color:#e53e3e; font-size:0.8rem; margin-top:0.25rem; }
+.field-hint { color:#888; font-size:0.8rem; margin-top:0.25rem; }
 .reg-success { color:#2d6a4f; font-size:0.85rem; margin-top:0.75rem; background:#e8f5e9; padding:0.5rem 0.75rem; border-radius:6px; }
 
 .reg-map { height:260px; border-radius:8px; border:1px solid #ddd; margin-bottom:0.5rem; cursor:crosshair; }

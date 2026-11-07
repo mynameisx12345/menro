@@ -67,6 +67,19 @@ How will this be verified?
 
 **[Reversal — 2026-10-31, during UNIT-2 9c]:** The business popup shows **business name + address**, same shape as the resident popup (`<b>${businessName}</b><br>📍 ${address}`). Reason: the PO wants the collector/admin to see the address too, not just the name — the business name alone doesn't tell them where to go.
 
+### Q14 [Gap] — Can a business user edit their own business name from the profile?
+**[Answer]:** Yes — the profile modal (upper-left account menu) shows `businessName` for business users, and it can be changed just like name/email/address. The backend `PUT /api/auth/me` accepts it.
+
+### Q15 [Gap] — Password strength rules
+Should the registration form show a live password-strength checklist (uppercase, lowercase, number, special character, min length)?
+
+**[Answer]:** Yes — a live checklist below the password field. Each rule starts as a grey bullet and turns into a green check when satisfied. Submit stays disabled until all pass. **Applies everywhere a password is set** (registration, admin user form, profile modal), not just registration.
+
+### Q16 [Gap] — Email helper message
+Should the email field show a helper message below it?
+
+**[Answer]:** Yes — a small grey hint below the email field, plus a live validation message if the format is wrong. Standard sign-up pattern.
+
 ## Assumptions Log
 
 1. **A1** — Business users share the resident portal component (`ResidentPortalComponent`) with no role-specific branching beyond the icon. *Contestable at Gate 1.*

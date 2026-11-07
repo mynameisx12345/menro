@@ -63,6 +63,32 @@ Add a new user type, **Business Owner**, functionally identical to Resident but 
 
 **Confidence:** High
 
+### FR-9 — Profile edit includes `businessName`
+- The resident portal profile modal (upper-left account menu) shows a `businessName` field for business users, editable like name/email/address.
+- `PUT /api/auth/me` accepts `businessName` and updates it.
+- Residents see no `businessName` field (unchanged).
+
+**Confidence:** High (added during UNIT-2 9c — see `elaboration-questions.md` Q14)
+
+### FR-10 — Password strength checklist
+- Every password field (registration, admin user form, profile modal) shows a live checklist below it:
+  - At least 8 characters
+  - Contains an uppercase letter
+  - Contains a lowercase letter
+  - Contains a number
+  - Contains a special character
+- Each rule starts as a grey bullet (`•`) and turns into a green check (`✓`) when satisfied.
+- Submit stays disabled until all rules pass (registration and admin form). Profile modal: the checklist shows, but submit is only blocked if a new password is entered and fails the rules (blank = keep current password).
+- Backend enforces the same rules on `POST /api/auth/register` and `PUT /api/auth/me` / `PUT /api/auth/users/:id` when a password is provided.
+
+**Confidence:** High (added during UNIT-2 9c — see `elaboration-questions.md` Q15)
+
+### FR-11 — Email helper message
+- Every email field (registration, admin user form, profile modal) shows a small grey hint below it: *"We'll use this to send you updates about your collection schedule."*
+- A live validation message appears if the format is wrong.
+
+**Confidence:** High (added during UNIT-2 9c — see `elaboration-questions.md` Q16)
+
 ## Non-Functional Requirements
 
 - **NFR-1** — No regression for existing residents: same icon, same popup, same behavior.
