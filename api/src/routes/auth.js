@@ -28,11 +28,12 @@ router.get('/me', authenticate, (req, res) => {
 router.put('/me', authenticate, (req, res) => {
   const existing = db.prepare('SELECT * FROM users WHERE id=?').get(req.user.id);
   if (!existing) return res.status(404).json({ message: 'User not found' });
-  const { name, email, password, address, lat, lng } = req.body;
+  const { name, email, password, address, lat, lng, businessName } = req.body;
   const hashed = password ? bcrypt.hashSync(password, 8) : existing.password;
-  db.prepare('UPDATE users SET name=?,email=?,password=?,address=?,lat=?,lng=? WHERE id=?')
-    .run(name ?? existing.name, email ?? existing.email, hashed, address ?? existing.address, lat ?? existing.lat, lng ?? existing.lng, req.user.id);
-  res.json(db.prepare('SELECT id,name,email,role,truckId,address,lat,lng FROM users WHERE id=?').get(req.user.id));
+  const finalBusinessName = existing.role === 'business' ? (businessName ?? existing.businessName) : null;
+  db.prepare('UPDATE users SET name=?,email=?,password=?,address=?,lat=?,lng=?,businessName=? WHERE id=?')
+    .run(name ?? existing.name, email ?? existing.email, hashed, address ?? existing.address, lat ?? existing.lat, lng ?? existing.lng, finalBusinessName, req.user.id);
+  res.json(db.prepare('SELECT id,name,email,role,truckId,address,lat,lng,businessName FROM users WHERE id=?').get(req.user.id));
 });
 
 router.post('/register', (req, res) => {

@@ -483,13 +483,18 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
     this.closeAccountMenu();
     this.profileError = ''; this.profileSuccess = ''; this.showProfileMap = false;
     this.profileForm = this.fb.group({
-      name:     [this.user?.name || '', Validators.required],
-      email:    [this.user?.email || '', [Validators.required, Validators.email]],
-      password: [''],
-      address:  [this.user?.address || ''],
-      lat:      [this.user?.lat ?? null],
-      lng:      [this.user?.lng ?? null]
+      name:         [this.user?.name || '', Validators.required],
+      email:        [this.user?.email || '', [Validators.required, Validators.email]],
+      password:     [''],
+      address:      [this.user?.address || ''],
+      lat:          [this.user?.lat ?? null],
+      lng:          [this.user?.lng ?? null],
+      businessName: [this.user?.businessName || '']
     });
+    if (this.user?.role === 'business') {
+      this.profileForm.get('businessName')!.setValidators(Validators.required);
+      this.profileForm.get('businessName')!.updateValueAndValidity();
+    }
     this.showProfile = true;
   }
   closeProfile() { this.showProfile = false; this.showProfileMap = false; this.profileMap?.remove(); (this.profileMap as any) = null; }
@@ -529,6 +534,7 @@ export class ResidentPortalComponent implements OnInit, AfterViewInit, OnDestroy
     this.profileError = ''; this.profileSuccess = ''; this.profileLoading = true;
     const payload: any = { ...this.profileForm.value };
     if (!payload.password) delete payload.password;
+    if (this.user?.role !== 'business') delete payload.businessName;
     this.dataSvc.updateMe(payload).subscribe({
       next: u => {
         this.user = { ...this.user, ...u };
