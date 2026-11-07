@@ -342,10 +342,10 @@ export class CollectorAppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const businessIcon = L.divIcon({
         html: `<div style="width:32px;height:32px;background:#1565c0;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center">
-          <svg style="transform:rotate(45deg)" width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3" y="6" width="18" height="3" rx="0.5"/>
-            <rect x="4" y="10" width="16" height="10" rx="0.5"/>
-            <rect x="9" y="14" width="6" height="6" fill="#1565c0"/>
+          <svg style="transform:rotate(45deg)" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
         </div>`,
         className: 'leaflet-div-icon-clean',
