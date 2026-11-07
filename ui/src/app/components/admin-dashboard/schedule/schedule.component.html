@@ -87,7 +87,7 @@
         <td><span class="waste-badge" [class]="s.wasteType.toLowerCase()">{{ s.wasteType }}</span></td>
         <td>{{ s.date }}</td>
         <td>{{ s.timeSlot }}</td>
-        <td>{{ s.areas?.join(', ') }}</td>
+        <td>{{ s.areas.join(', ') }}</td>
         <td><span class="status-badge" [class]="s.status">{{ s.status }}</span></td>
         <td>
           <button class="btn-sm success" *ngIf="s.status === 'pending'" (click)="updateStatus(s.id, 'completed')">Done</button>

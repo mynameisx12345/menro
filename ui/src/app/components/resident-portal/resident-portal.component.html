@@ -87,7 +87,7 @@
           <div class="schedule-body">
             <p>♻️ <strong>{{ s.wasteType }}</strong></p>
             <p>📅 {{ s.date }} · ⏰ {{ s.timeSlot }}</p>
-            <p>📍 {{ s.areas?.join(', ') }}</p>
+            <p>📍 {{ s.areas.join(', ') }}</p>
             <p *ngIf="getTruck(s.truckId) as truck">🚛 {{ truck.plateNumber }}</p>
           </div>
         </div>

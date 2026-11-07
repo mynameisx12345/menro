@@ -121,7 +121,7 @@
       </div>
       <div class="schedule-detail" *ngIf="scheduleToComplete">
         <span class="status-badge" [class]="scheduleToComplete.status">{{ scheduleToComplete.status }}</span>
-        <span>📍 {{ scheduleToComplete.areas?.join(', ') }}</span>
+        <span>📍 {{ scheduleToComplete.areas.join(', ') }}</span>
       </div>
       <button class="btn-submit" style="margin-top:2rem" [disabled]="!scheduleToComplete" (click)="showCompleteModal = true">✅ Complete Collection</button>
       <div class="success-msg" *ngIf="collectionCompleted">✅ Collection marked as completed!</div>
@@ -216,7 +216,7 @@
             <span class="status-badge" [class]="s.status">{{ s.status }}</span>
             <span>{{ s.date }} · {{ s.timeSlot }}</span>
             <span>♻️ {{ s.wasteType }}</span>
-            <span>📍 {{ s.areas?.join(', ') }}</span>
+            <span>📍 {{ s.areas.join(', ') }}</span>
           </div>
         </div>
       </div>
