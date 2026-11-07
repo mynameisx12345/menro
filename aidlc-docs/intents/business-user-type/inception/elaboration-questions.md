@@ -65,6 +65,8 @@ How will this be verified?
 ### Q13 [Gap] — What shows in the map popup for a business?
 **[Answer]:** (c) Just the business name.
 
+**[Reversal — 2026-10-31, during UNIT-2 9c]:** The business popup shows **business name + address**, same shape as the resident popup (`<b>${businessName}</b><br>📍 ${address}`). Reason: the PO wants the collector/admin to see the address too, not just the name — the business name alone doesn't tell them where to go.
+
 ## Assumptions Log
 
 1. **A1** — Business users share the resident portal component (`ResidentPortalComponent`) with no role-specific branching beyond the icon. *Contestable at Gate 1.*

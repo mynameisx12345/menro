@@ -46,10 +46,10 @@ Add a new user type, **Business Owner**, functionally identical to Resident but 
 **Confidence:** High (icon design approved at Gate 1; glyph corrected during UNIT-2 9c — see `elaboration-questions.md` Q5 reversal)
 
 ### FR-6 — Map popup
-- Business popup shows only the business name: `<b>${businessName}</b>`.
+- Business popup shows business name + address: `<b>${businessName}</b><br>📍 ${address}` — same shape as the resident popup.
 - Resident popup unchanged: `<b>${name}</b><br>📍 ${address}`.
 
-**Confidence:** High
+**Confidence:** High (popup content corrected during UNIT-2 9c — see `elaboration-questions.md` Q13 reversal)
 
 ### FR-7 — Endpoint extension
 - `GET /api/auth/residents` returns both `role='resident'` and `role='business'` users.

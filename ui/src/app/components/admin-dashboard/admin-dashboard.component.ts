@@ -169,7 +169,9 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     const businessIcon = L.divIcon({
       html: `<div style="width:32px;height:32px;background:#1565c0;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center">
         <svg style="transform:rotate(45deg)" width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 9l1.5-4h15L21 9v1H3V9zm1 2h16v9h-5v-5h-6v5H4v-9z"/>
+          <rect x="3" y="6" width="18" height="3" rx="0.5"/>
+          <rect x="4" y="10" width="16" height="10" rx="0.5"/>
+          <rect x="9" y="14" width="6" height="6" fill="#1565c0"/>
         </svg>
       </div>`,
       className: 'leaflet-div-icon-clean',
@@ -192,9 +194,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
               }
               const isBusiness = (r as any).role === 'business';
               const icon = isBusiness ? businessIcon : homeIcon;
-              const popup = isBusiness
-                ? `<b>${(r as any).businessName || r.name}</b>`
-                : `<b>${r.name}</b><br>📍 ${r.address}`;
+              const label = isBusiness ? ((r as any).businessName || r.name) : r.name;
+              const popup = `<b>${label}</b><br>📍 ${r.address}`;
               L.marker([lat, lng], { icon })
                 .addTo(this.map)
                 .bindPopup(popup);
