@@ -38,7 +38,7 @@ Header: **Project shape**: web PWA (Angular 18) + REST API (Express 5) + SQLite 
 - **Why / Who to ask / Known risks**: — / Architect / —
 
 #### CAP-02 Deployment, environments, rollback
-- **Answer**: No pipeline. Manual: `npm run start:ngrok` (ngrok tunnel) or `npm run start:cloudflare` (Cloudflare Tunnel). Angular build configurations: `development`, `network` (LAN IP), `ngrok` (same-origin). No rollback procedure recorded.
+- **Answer**: No pipeline. Manual: `npm run start:ngrok` (ngrok tunnel) or `npm run start:cloudflare` (Cloudflare Tunnel). Angular build configurations: `development`, `network` (LAN IP), `ngrok` (same-origin). Cloudflare Tunnel `teng-local` (ID `329eeace-59fa-401f-9c12-2b59d505eb10`), config at `~/.cloudflared/config.yml`, hostname `mynameisx-teng.com`. No rollback procedure recorded.
 - **State**: Detected (partial — rollback Unknown)
 - **Flags**: —
 - **Evidence**: Verified — `api/package.json` scripts, `ui/angular.json` configurations
