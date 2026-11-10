@@ -74,6 +74,10 @@ db.exec(`
   );
 `);
 
+// Run versioned migrations before seeding (see api/migrations/*.sql and api/src/data/migrate.js)
+const { runMigrations } = require('./migrate');
+runMigrations(db);
+
 // Seed only if empty
 const seed = db.transaction(() => {
   if (!db.prepare('SELECT 1 FROM users LIMIT 1').get()) {
@@ -122,9 +126,6 @@ const seed = db.transaction(() => {
 
 seed();
 
-// Run versioned migrations (see api/migrations/*.sql and api/src/data/migrate.js)
-const { runMigrations } = require('./migrate');
-runMigrations(db);
 // Set all existing users to approved
 db.prepare("UPDATE users SET status='approved' WHERE status IS NULL").run();
 

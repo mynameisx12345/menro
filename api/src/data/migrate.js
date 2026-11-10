@@ -69,6 +69,12 @@ function runMigrations(db, { status = false } = {}) {
       console.log(`[migrate] Applied ${file}`);
       count++;
     } catch (err) {
+      if (/duplicate column name/i.test(err.message)) {
+        // Column already exists (base schema or an older inline ALTER) - treat as applied
+        record.run(file, new Date().toISOString());
+        console.log(`[migrate] Skipped ${file} (${err.message})`);
+        continue;
+      }
       console.error(`[migrate] FAILED ${file}: ${err.message}`);
       throw err;
     }
