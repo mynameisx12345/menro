@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_CENTER } from '../../utils/map-defaults';
 import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { geoSearch, geoReverse } from '../../utils/geocode';
 import { FEATURES } from '../../features';
@@ -14,7 +15,7 @@ import { Truck, Schedule, Complaint, WasteType } from '../../models/models';
 import { Subscription } from 'rxjs';
 import { PasswordChecklistComponent } from '../../shared/password-checklist/password-checklist.component';
 
-const RESIDENT_HOME_DEFAULT: [number, number] = [14.6005, 120.9855];
+const RESIDENT_HOME_DEFAULT: [number, number] = DEFAULT_MAP_CENTER;
 const ALERT_DISTANCE_KM = 1;
 
 @Component({

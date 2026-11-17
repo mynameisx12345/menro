@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_CENTER } from '../../../utils/map-defaults';
 import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -110,7 +111,7 @@ export class ScheduleComponent implements OnInit {
     if (this.scheduleMap) { this.scheduleMap.remove(); this.scheduleMap = null!; }
     const el = document.getElementById('schedule-map');
     if (!el) return;
-    this.scheduleMap = L.map(el).setView([14.5995, 120.9842], 13);
+    this.scheduleMap = L.map(el).setView(DEFAULT_MAP_CENTER, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(this.scheduleMap);
     navigator.geolocation?.getCurrentPosition(
       pos => this.scheduleMap?.setView([pos.coords.latitude, pos.coords.longitude], 15),

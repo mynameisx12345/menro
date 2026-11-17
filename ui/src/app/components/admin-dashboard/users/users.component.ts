@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_CENTER } from '../../../utils/map-defaults';
 import { geoSearch, geoReverse } from '../../../utils/geocode';
 import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -52,6 +53,7 @@ export class UsersComponent implements OnInit {
       password: ['', Validators.required],
       role:     ['', Validators.required],
       truckId:  [''],
+      businessName: [''],
       address:  [''],
       lat:      [null],
       lng:      [null],
@@ -67,13 +69,15 @@ export class UsersComponent implements OnInit {
   openForm() {
     this.showForm = true; this.editingUser = null; this.error = ''; this.success = '';
     this.form.reset();
+    this.setBusinessNameValidator('');
     this.form.get('password')!.setValidators(Validators.required);
     this.form.get('password')!.updateValueAndValidity();
   }
 
   editUser(u: any) {
     this.showForm = true; this.editingUser = u; this.error = ''; this.success = '';
-    this.form.patchValue({ name: u.name, email: u.email, password: '', role: u.role, truckId: u.truckId || '', address: u.address || '', lat: u.lat ?? null, lng: u.lng ?? null, status: u.status || 'approved', isDisabled: !!u.disabled });
+    this.form.patchValue({ name: u.name, email: u.email, password: '', role: u.role, truckId: u.truckId || '', businessName: u.businessName || '', address: u.address || '', lat: u.lat ?? null, lng: u.lng ?? null, status: u.status || 'approved', isDisabled: !!u.disabled });
+    this.setBusinessNameValidator(u.role);
     this.form.get('password')!.clearValidators();
     this.form.get('password')!.updateValueAndValidity();
   }
@@ -84,8 +88,15 @@ export class UsersComponent implements OnInit {
   }
 
   onRoleChange(role: string) {
-    this.form.patchValue({ role, truckId: '', address: '' });
+    this.form.patchValue({ role, truckId: '', address: '', businessName: '' });
+    this.setBusinessNameValidator(role);
     if (this.showRegMap) { this.showRegMap = false; this.regMap?.remove(); }
+  }
+
+  private setBusinessNameValidator(role: string) {
+    const ctrl = this.form.get('businessName')!;
+    ctrl.setValidators(role === 'business' ? Validators.required : null);
+    ctrl.updateValueAndValidity();
   }
 
   toggleRegMap() {
@@ -97,7 +108,7 @@ export class UsersComponent implements OnInit {
       if (!el) return;
       if (this.regMap) { this.regMap.remove(); (this.regMap as any) = null; }
       // Init at default first so map renders immediately
-      this.regMap = L.map('reg-map').setView([14.5995, 120.9842], 14);
+      this.regMap = L.map('reg-map').setView(DEFAULT_MAP_CENTER, 14);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(this.regMap);
       // Then pan to GPS location
       if (navigator.geolocation) {
@@ -155,6 +166,7 @@ export class UsersComponent implements OnInit {
     const payload: any = { ...this.form.value, disabled: this.form.value.isDisabled };
     delete payload.isDisabled;
     if (payload.role !== 'collector') delete payload.truckId;
+    if (payload.role !== 'business') delete payload.businessName;
     if (payload.role !== 'resident') { delete payload.address; delete payload.lat; delete payload.lng; delete payload.status; }
     if (!payload.password) delete payload.password;
 

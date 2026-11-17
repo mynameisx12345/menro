@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_CENTER } from '../../utils/map-defaults';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
@@ -136,7 +137,7 @@ export class CollectorAppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   initMap() {
-    const center: [number, number] = [14.5995, 120.9842];
+    const center: [number, number] = DEFAULT_MAP_CENTER;
     this.map = L.map('collector-map').setView(center, 15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
@@ -225,10 +226,10 @@ export class CollectorAppComponent implements OnInit, AfterViewInit, OnDestroy {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             pos => resolve([pos.coords.latitude, pos.coords.longitude]),
-            () => resolve([14.5995, 120.9842]),
+            () => resolve(DEFAULT_MAP_CENTER),
             { timeout: 5000, enableHighAccuracy: true }
           );
-        } else { resolve([14.5995, 120.9842]); }
+        } else { resolve(DEFAULT_MAP_CENTER); }
       });
       // Geocode areas once and cache
       this.cachedAreaWaypoints = [];

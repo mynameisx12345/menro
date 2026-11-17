@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_CENTER } from '../../utils/map-defaults';
 import { geoSearch, geoReverse } from '../../utils/geocode';
 import { FEATURES } from '../../features';
 import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
@@ -126,7 +127,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
   initMap() {
     if (!document.getElementById('admin-map')) return;
-    this.map = L.map('admin-map').setView([14.5995, 120.9842], 14);
+    this.map = L.map('admin-map').setView(DEFAULT_MAP_CENTER, 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);

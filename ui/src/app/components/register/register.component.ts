@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_CENTER } from '../../utils/map-defaults';
 import { geoSearch, geoReverse } from '../../utils/geocode';
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -69,7 +70,7 @@ export class RegisterComponent {
       const el = document.getElementById('reg-map');
       if (!el) return;
       if (this.regMap) { this.regMap.remove(); (this.regMap as any) = null; }
-      this.regMap = L.map('reg-map').setView([14.5995, 120.9842], 14);
+      this.regMap = L.map('reg-map').setView(DEFAULT_MAP_CENTER, 14);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(this.regMap);
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
